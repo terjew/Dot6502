@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Dot6502
@@ -37,6 +38,19 @@ namespace Dot6502
         public byte[] Memory = new byte[65536];
         //FIXME: Consider representing as 256x256 image of RGB8,8,4-colors
 
+        private Random random;
+        private List<MemoryWatch> watches = new List<MemoryWatch>();
+
+        public ExecutionState()
+        {
+            random = new Random();
+        }
+
+        public void AddMemoryWatch(MemoryWatch watch)
+        {
+            watches.Add(watch);
+        }
+
         public bool SetFlag(StateFlag flag)
         {
             var prev = TestFlag(flag);
@@ -61,26 +75,27 @@ namespace Dot6502
             return Memory[pos];
         }
 
-        public sbyte ReadSignedByte(ushort pos)
+        public void WriteByte(ushort pos, byte value)
         {
-            unchecked
+            Memory[pos] = value;
+            foreach (var watch in watches.Where(w => w.IsInside(pos)))
             {
-                return (sbyte)Memory[pos];
+                watch.Callback(pos, value);
             }
         }
 
         public ushort ReadWord(ushort pos)
         {
-            return (ushort)(Memory[pos] << 8 + Memory[pos + 1]);
+            return (ushort)((Memory[pos + 1] << 8) + Memory[pos]);
         }
 
-        public short ReadSignedWord(ushort pos)
+        public void StepExecution()
         {
-            unchecked
-            {
-                return (short)(Memory[pos] << 8 + Memory[pos + 1]);
-            }
+            var instruction = Decoder.DecodeInstruction(this);
+            var offset = instruction.Execute(this);
+            PC = (ushort)(PC + offset);
+            //Update the random generator number:
+            WriteByte(0x00FE, (byte)(random.Next(256)));
         }
-
     }
 }

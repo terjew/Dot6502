@@ -8,9 +8,10 @@ namespace Dot6502.Instructions
         public override string Description => "set carry";
         public SEC() : base(new Implied()) { }
 
-        public override void Execute(ExecutionState state)
+        public override ushort Execute(ExecutionState state)
         {
             state.SetFlag(StateFlag.Carry);
+            return InstructionSize;
         }
     }
 }

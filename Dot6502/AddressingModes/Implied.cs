@@ -6,11 +6,6 @@ namespace Dot6502.AddressingModes
     {
         public override string Name => "Implied";
         public override string ShortName => "impl";
-        public override int OperandLength => 0;
-
-        public override byte GetOperand(ExecutionState state)
-        {
-            throw new NotSupportedException();
-        }
+        public override ushort OperandLength => 0;
     }
 }

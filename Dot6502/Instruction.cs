@@ -7,13 +7,13 @@ namespace Dot6502
         public abstract string Name { get; }
         public abstract string Description { get; }
         public AddressingMode AddressingMode { get; }
-        public int InstructionSize => AddressingMode.OperandLength + 1;
+        public ushort InstructionSize => (ushort)(AddressingMode.OperandLength + 1);
 
         protected Instruction(AddressingMode mode)
         {
             AddressingMode = mode;
         }
 
-        public abstract void Execute(ExecutionState cpu);
+        public abstract ushort Execute(ExecutionState state);
     }
 }

@@ -6,7 +6,7 @@ namespace Dot6502.AddressingModes
     {
         public override string Name => "Absolute";
         public override string ShortName => "abs";
-        public override int OperandLength => 2;
+        public override ushort OperandLength => 2;
         public IndexMode IndexMode { get; }
 
         public Absolute(IndexMode indexMode)
@@ -14,19 +14,20 @@ namespace Dot6502.AddressingModes
             IndexMode = indexMode;
         }
 
-        public override byte GetOperand(ExecutionState state)
+        public override Pointer Resolve(ExecutionState state)
         {
             var baseAddress = state.ReadWord((ushort)(state.PC + 1));
-            switch (IndexMode)  
+            switch (IndexMode)
             {
                 case IndexMode.None:
-                    return state.ReadByte(baseAddress);
+                    return new MemoryPointer(state, baseAddress);
                 case IndexMode.X:
-                    return state.ReadByte((ushort)(baseAddress + state.X));
+                    return new MemoryPointer(state, (ushort)(baseAddress + state.X));
                 case IndexMode.Y:
-                    return state.ReadByte((ushort)(baseAddress + state.Y));
+                    return new MemoryPointer(state, (ushort)(baseAddress + state.Y));
             }
-            throw new NotSupportedException();
+            throw new InvalidOperationException();
         }
+
     }
 }

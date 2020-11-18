@@ -8,12 +8,11 @@ namespace Dot6502.AddressingModes
     {
         public override string Name => "Relative";
         public override string ShortName => "rel";
-        public override int OperandLength => 1;
+        public override ushort OperandLength => 1;
 
-        public override byte GetOperand(ExecutionState state)
+        public override Pointer Resolve(ExecutionState state)
         {
-            var operand = state.ReadByte((ushort)(state.PC + 1));
-            return operand;
+            return new ImmediateValuePointer(state);
         }
     }
 }

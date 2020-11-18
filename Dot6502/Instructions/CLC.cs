@@ -8,9 +8,10 @@ namespace Dot6502.Instructions
         public override string Description => "clear carry";
         public CLC() : base(new Implied()) { }
 
-        public override void Execute(ExecutionState cpu)
+        public override ushort Execute(ExecutionState cpu)
         {
             cpu.ClearFlag(StateFlag.Carry);
+            return InstructionSize;
         }
     }
 }

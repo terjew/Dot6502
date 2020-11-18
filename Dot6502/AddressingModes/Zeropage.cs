@@ -8,7 +8,7 @@ namespace Dot6502.AddressingModes
     {
         public override string Name => "Zeropage";
         public override string ShortName => "zpg";
-        public override int OperandLength => 1;
+        public override ushort OperandLength => 1;
         public IndexMode IndexMode { get; }
 
         public Zeropage(IndexMode indexMode)
@@ -16,7 +16,7 @@ namespace Dot6502.AddressingModes
             IndexMode = indexMode;
         }
 
-        public override byte GetOperand(ExecutionState state)
+        public override Pointer Resolve(ExecutionState state)
         {
             ushort baseAddress;
             byte ll;
@@ -36,7 +36,8 @@ namespace Dot6502.AddressingModes
                 default:
                     throw new NotImplementedException();
             }
-            return state.ReadByte(baseAddress);
+            return new MemoryPointer(state, baseAddress);
         }
+
     }
 }
