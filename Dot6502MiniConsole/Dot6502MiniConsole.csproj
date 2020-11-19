@@ -9,4 +9,19 @@
     <ProjectReference Include="..\Dot6502\Dot6502.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="SamplePrograms\conway.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SamplePrograms\conway.hex">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SamplePrograms\random.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SamplePrograms\random.hex">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

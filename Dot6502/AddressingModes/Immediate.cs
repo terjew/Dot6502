@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dot6502.AddressingModes
+﻿namespace Dot6502.AddressingModes
 {
     class Immediate : AddressingMode
     {

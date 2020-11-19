@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Dot6502
 {
@@ -17,33 +17,24 @@ namespace Dot6502
         Carry = 0
     }
 
-    public class MemoryMap
-    {
-        public ushort ZeroPage = 0x0000;
-        public ushort StackEnd = 0x0100;
-        public ushort StackBegin = 0x01FF;
-        public ushort Screen = 0x0400; //40*25 characters
-        public ushort ProgramStart = 0x1000;
-    }
-
     public class ExecutionState
     {
+        public byte[] Memory = new byte[65536];
+
         //registers:
         public ushort PC; //program counter
         public byte AC; //accumulator
         public byte X; //X register
         public byte Y; //Y register
         public byte SR; //status register [NV-BDIZC]
-        public byte SP; //stack pointer
-        public byte[] Memory = new byte[65536];
-        //FIXME: Consider representing as 256x256 image of RGB8,8,4-colors
+        public ushort SP = 0xFF; //stack pointer
 
-        private Random random;
+        private ushort stackBase = 0x0100;
+
         private List<MemoryWatch> watches = new List<MemoryWatch>();
 
         public ExecutionState()
         {
-            random = new Random();
         }
 
         public void AddMemoryWatch(MemoryWatch watch)
@@ -89,13 +80,84 @@ namespace Dot6502
             return (ushort)((Memory[pos + 1] << 8) + Memory[pos]);
         }
 
+        public void WriteWord(ushort pos, ushort word)
+        {
+            Memory[pos] = (byte)(word & 0xFF);
+            Memory[pos + 1] = (byte)(word >> 8);
+        }
+
+        public void Push(byte value)
+        {
+            if (SP == 0) throw new StackOverflowException();
+            WriteByte((ushort)(stackBase + SP), value);
+            SP--;
+        }
+
+        public void Push(ushort word)
+        {
+            if (SP <= 1) throw new StackOverflowException();
+            SP--;
+            WriteWord((ushort)(stackBase + SP), word);
+            SP--;
+        }
+
+        public byte PopByte()
+        {
+            if (SP == 0) throw new StackOverflowException();
+            SP++;
+            return ReadByte((ushort)(stackBase + SP));
+        }
+
+
+        public ushort PopWord()
+        {
+            if (SP == 0) throw new StackOverflowException();
+            SP++;
+            var word = ReadWord((ushort)(stackBase + SP));
+            SP++;
+            return word;
+        }
+
         public void StepExecution()
         {
             var instruction = Decoder.DecodeInstruction(this);
             var offset = instruction.Execute(this);
             PC = (ushort)(PC + offset);
-            //Update the random generator number:
-            WriteByte(0x00FE, (byte)(random.Next(256)));
         }
+
+        public void LoadHexFile(string filename)
+        {
+            var hex = File.ReadAllText(filename);
+            LoadHexString(hex);
+        }
+
+        public void SetNegativeFlag(byte value)
+        {
+            if (value > 0x7f) SetFlag(StateFlag.Negative);
+            else ClearFlag(StateFlag.Negative);
+        }
+
+        public void SetZeroFlag(byte value)
+        {
+            if (value == 0) SetFlag(StateFlag.Zero);
+            else ClearFlag(StateFlag.Zero);
+        }
+
+        public void LoadHexString(string hexString)
+        {
+            var byteStrings = hexString.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var bytes = byteStrings.Select(hex => Convert.ToInt32(hex, 16)).Select(i => (byte)i);
+            var programAddressBytes = bytes.Take(2).ToArray();
+            ushort programAddress = (ushort)((programAddressBytes[1] << 8) | programAddressBytes[0]);
+            var programBytes = bytes.Skip(2).ToArray();
+            LoadProgram(programBytes, programAddress);
+        }
+
+        public void LoadProgram(byte[] program, ushort location)
+        {
+            Array.Copy(program, 0, Memory, location, program.Length);
+            PC = location;
+        }
+
     }
 }

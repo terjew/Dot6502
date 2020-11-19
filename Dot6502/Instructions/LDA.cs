@@ -10,6 +10,8 @@
         {
             var pointer = AddressingMode.Resolve(state);
             state.AC = pointer.Get();
+            state.SetZeroFlag(state.AC);
+            state.SetNegativeFlag(state.AC);
             return InstructionSize;
         }
     }

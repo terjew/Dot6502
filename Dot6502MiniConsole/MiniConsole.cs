@@ -1,6 +1,7 @@
 ﻿using Dot6502;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace Dot6502MiniConsole
     public class MiniConsole
     {
         private ExecutionState state;
-
+        private Random random;
         private ConsoleColor[] colors = new ConsoleColor[]
         {
             ConsoleColor.Black,
@@ -30,34 +31,18 @@ namespace Dot6502MiniConsole
             ConsoleColor.Cyan
         };
 
-//Black ($0)
-//White ($1)
-//Red ($2)
-//Cyan ($3)
-//Purple ($4)
-//Green ($5)
-//Blue ($6)
-//Yellow ($7)
-//Orange ($8)
-//Brown ($9)
-//Light red ($a)
-//Dark gray ($b)
-//Gray ($c)
-//Light green ($d)
-//Light blue ($e)
-//Light gray ($f)
-
         public MiniConsole()
         {
             state = new ExecutionState();
-            state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05ff, UpdateConsole));
-            Console.WindowWidth = 64;
-            Console.WindowHeight = 32;
-            Console.BufferWidth = 64;
-            Console.BufferHeight = 32;
+            state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05ff, UpdateFramebuffer));
+            //Console.WindowWidth = 64;
+            //Console.WindowHeight = 32;
+            //Console.BufferWidth = 64;
+            //Console.BufferHeight = 32;
+            random = new Random(0); //reuse seed for repeatable results
         }
 
-        private void UpdateConsole(ushort pos, byte value)
+        private void UpdateFramebuffer(ushort pos, byte value)
         {
             pos -= 0x200;
             var col = pos % 32;
@@ -69,23 +54,30 @@ namespace Dot6502MiniConsole
             Console.Write(hex);
         }
 
-        public void LoadProgram(string program, ushort location)
-        {
-            var byteStrings = program.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var bytes = byteStrings.Select(hex => Convert.ToInt32(hex, 16)).Select(i => (byte)i).ToArray();
-            for(ushort i = 0; i < bytes.Length; i++)
-            {
-                state.WriteByte((ushort)(location + i), bytes[i]);
-            }
-            state.PC = location;
-        }
-
         public void Run()
         {
-            for (; ; )
+            while(true)
             {
                 state.StepExecution();
+                UpdateInput();
+                UpdateRandom();
             }
+        }
+
+        private void UpdateRandom()
+        {
+            //Update the random generator number:
+            state.WriteByte(0x00FE, (byte)(random.Next(256)));
+        }
+
+        private void UpdateInput()
+        {
+            //FIXME: Implement
+        }
+
+        internal void LoadProgram(string filename)
+        {
+            state.LoadHexFile(filename);
         }
     }
 }

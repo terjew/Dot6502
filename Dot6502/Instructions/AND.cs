@@ -13,8 +13,12 @@ namespace Dot6502.Instructions
         public override ushort Execute(ExecutionState state)
         {
             var operand = AddressingMode.Resolve(state).Get();
-            var result = state.AC & operand;
-            state.AC = (byte)result;
+            var result = (byte)(state.AC & operand);
+
+            state.SetNegativeFlag(result);
+            state.SetZeroFlag(result);
+
+            state.AC = result;
             return InstructionSize;
         }
     }

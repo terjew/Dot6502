@@ -11,9 +11,15 @@
             var carryIn = state.TestFlag(StateFlag.Carry) ? 1 : 0;
             var operand = AddressingMode.Resolve(state).Get();
             var result = state.AC + operand + carryIn;
+
             bool carry = result > 255;
             if (carry) state.SetFlag(StateFlag.Carry);
-            else state.ClearFlag(StateFlag.Carry);
+
+            byte byteResult = (byte)result;
+
+            state.SetZeroFlag(byteResult);
+            state.SetNegativeFlag(byteResult);
+
             //FIXME: handle overflow
             state.AC = (byte)result;
             return InstructionSize;

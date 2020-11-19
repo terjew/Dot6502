@@ -6,14 +6,9 @@ namespace Dot6502MiniConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             var console = new MiniConsole();
-            console.LoadProgram(@"
-                AD FE 00 8D 00 00 AD FE
-                00 29 03 18 69 02 8D 01
-                00 AD FE 00 A0 00 91 00
-                4C 37 13
-                ", 0x1337);
+            //console.LoadProgram("SamplePrograms/random.hex");
+            console.LoadProgram("SamplePrograms/conway.hex");
             console.Run();
         }
     }

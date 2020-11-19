@@ -109,6 +109,11 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  absolute      ASL oper      0E    3     6
                  absolute,X    ASL oper,X    1E    3     7
             */
+            instructions[0x0A] = new ASL(Accumulator);
+            instructions[0x06] = new ASL(Zeropage);
+            instructions[0x16] = new ASL(ZeropageX);
+            instructions[0x0E] = new ASL(Absolute);
+            instructions[0x1E] = new ASL(AbsoluteX);
 
             /*
             BCC  Branch on Carry Clear
@@ -142,6 +147,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BEQ oper      F0    2     2**
             */
+            instructions[0xF0] = new BEQ(Relative);
 
             /*
             BIT  Test Bits in Memory with Accumulator
@@ -179,6 +185,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BNE oper      D0    2     2**
             */
+            instructions[0xD0] = new BNE(Relative);
 
             /*
             BPL  Branch on Result Plus
@@ -287,6 +294,14 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  (indirect,X)  CMP (oper,X)  C1    2     6
                  (indirect),Y  CMP (oper),Y  D1    2     5*
             */
+            instructions[0xC9] = new CMP(Immediate);
+            instructions[0xC5] = new CMP(Zeropage);
+            instructions[0xD5] = new CMP(ZeropageX);
+            instructions[0xCD] = new CMP(Absolute);
+            instructions[0xDD] = new CMP(AbsoluteX);
+            instructions[0xD9] = new CMP(AbsoluteY);
+            instructions[0xC1] = new CMP(IndirectX);
+            instructions[0xD1] = new CMP(IndirectY);
 
             /*
             CPX  Compare Memory and Index X
@@ -300,6 +315,9 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  zeropage      CPX oper      E4    2     3
                  absolute      CPX oper      EC    3     4
             */
+            instructions[0xE0] = new CPX(Immediate);
+            instructions[0xE4] = new CPX(Zeropage);
+            instructions[0xEC] = new CPX(Absolute);
 
             /*
             CPY  Compare Memory and Index Y
@@ -313,6 +331,9 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  zeropage      CPY oper      C4    2     3
                  absolute      CPY oper      CC    3     4
             */
+            instructions[0xC0] = new CPY(Immediate);
+            instructions[0xC4] = new CPY(Zeropage);
+            instructions[0xCC] = new CPY(Absolute);
 
             /*
             DEC  Decrement Memory by One
@@ -381,6 +402,10 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  absolute      INC oper      EE    3     6
                  absolute,X    INC oper,X    FE    3     7
             */
+            instructions[0xE6] = new INC(Zeropage);
+            instructions[0xF6] = new INC(ZeropageX);
+            instructions[0xEE] = new INC(Absolute);
+            instructions[0xFE] = new INC(AbsoluteX);
 
             /*
             INX  Increment Index X by One
@@ -429,6 +454,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  absolute      JSR oper      20    3     6
             */
+            instructions[0x20] = new JSR(Absolute);
 
             /*
             LDA  Load Accumulator with Memory
@@ -470,6 +496,11 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  absolute      LDX oper      AE    3     4
                  absolute,Y    LDX oper,Y    BE    3     4*
             */
+            instructions[0xA2] = new LDX(Immediate);
+            instructions[0xA6] = new LDX(Zeropage);
+            instructions[0xB6] = new LDX(ZeropageY);
+            instructions[0xAE] = new LDX(Absolute);
+            instructions[0xBE] = new LDX(AbsoluteY);
 
             /*
             LDY  Load Index Y with Memory
@@ -630,6 +661,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       RTS           60    1     6
             */
+            instructions[0x60] = new RTS();
 
             /*
             SBC  Subtract Memory from Accumulator with Borrow
@@ -719,6 +751,9 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  zeropage,Y    STX oper,Y    96    2     4
                  absolute      STX oper      8E    3     4
             */
+            instructions[0x86] = new STX(Zeropage);
+            instructions[0x96] = new STX(ZeropageY);
+            instructions[0x8E] = new STX(Absolute);
 
             /*
             STY  Sore Index Y in Memory
@@ -732,6 +767,9 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  zeropage,X    STY oper,X    94    2     4
                  absolute      STY oper      8C    3     4
             */
+            instructions[0x84] = new STY(Zeropage);
+            instructions[0x94] = new STY(ZeropageX);
+            instructions[0x8C] = new STY(Absolute);
 
             /*
             TAX  Transfer Accumulator to Index X
@@ -743,6 +781,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       TAX           AA    1     2
             */
+            instructions[0xAA] = new TAX();
 
             /*
             TAY  Transfer Accumulator to Index Y
@@ -754,6 +793,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       TAY           A8    1     2
             */
+            instructions[0xA8] = new TAY();
 
             /*
             TSX  Transfer Stack Pointer to Index X
@@ -776,6 +816,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       TXA           8A    1     2
             */
+            instructions[0x8A] = new TXA();
 
             /*
             TXS  Transfer Index X to Stack Register
