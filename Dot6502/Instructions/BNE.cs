@@ -8,7 +8,7 @@
 
         public override ushort Execute(ExecutionState state)
         {
-            if (state.TestFlag(StateFlag.Zero))
+            if (!state.TestFlag(StateFlag.Zero))
             {
                 int offset = AddressingMode.Resolve(state).Get();
                 if (offset > 127)

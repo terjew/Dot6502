@@ -35,11 +35,14 @@ namespace Dot6502MiniConsole
         {
             state = new ExecutionState();
             state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05ff, UpdateFramebuffer));
-            //Console.WindowWidth = 64;
-            //Console.WindowHeight = 32;
-            //Console.BufferWidth = 64;
-            //Console.BufferHeight = 32;
-            random = new Random(0); //reuse seed for repeatable results
+            Console.WindowWidth = 64;
+            Console.WindowHeight = 32;
+            Console.BufferWidth = 64;
+            Console.BufferHeight = 32;
+            random = new Random(2); //reuse seed for repeatable results
+            Console.BackgroundColor = colors[0];
+            Console.SetCursorPosition(0, 0);
+            Console.Write(".");
         }
 
         private void UpdateFramebuffer(ushort pos, byte value)
@@ -58,16 +61,17 @@ namespace Dot6502MiniConsole
         {
             while(true)
             {
-                state.StepExecution();
                 UpdateInput();
                 UpdateRandom();
+                state.StepExecution();
             }
         }
 
         private void UpdateRandom()
         {
             //Update the random generator number:
-            state.WriteByte(0x00FE, (byte)(random.Next(256)));
+            //state.WriteByte(0x00FE, (byte)(random.Next(256)));
+            state.WriteByte(0x00FE, 0xff);
         }
 
         private void UpdateInput()

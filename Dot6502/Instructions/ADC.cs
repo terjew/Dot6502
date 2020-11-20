@@ -10,18 +10,15 @@
         {
             var carryIn = state.TestFlag(StateFlag.Carry) ? 1 : 0;
             var operand = AddressingMode.Resolve(state).Get();
-            var result = state.AC + operand + carryIn;
+            var unsignedResult = state.AC + operand + carryIn;
+            byte byteResult = (byte)unsignedResult;
 
-            bool carry = result > 255;
-            if (carry) state.SetFlag(StateFlag.Carry);
-
-            byte byteResult = (byte)result;
-
-            state.SetZeroFlag(byteResult);
+            state.SetCarryFlag(unsignedResult > 255);
+            state.SetZeroFlag(byteResult == 0);
             state.SetNegativeFlag(byteResult);
+            state.SetOverflowFlag(state.AC, operand, byteResult);
 
-            //FIXME: handle overflow
-            state.AC = (byte)result;
+            state.AC = byteResult;
             return InstructionSize;
         }
     }

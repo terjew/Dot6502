@@ -7,14 +7,14 @@ namespace Dot6502
 {
     public enum StateFlag
     {
-        Negative = 7,
-        Overflow = 6,
-        ignored = 5,
-        Break = 4,
-        Decimal = 3,
-        Interrupt = 2,
-        Zero = 1,
-        Carry = 0
+        Negative = 0x80,
+        Overflow = 0x40,
+        ignored = 0x20,
+        Break = 0x10,
+        Decimal = 0x08,
+        Interrupt = 0x04,
+        Zero = 0x02,
+        Carry = 0x01
     }
 
     public class ExecutionState
@@ -35,6 +35,7 @@ namespace Dot6502
 
         public ExecutionState()
         {
+            SetFlag(StateFlag.ignored);
         }
 
         public void AddMemoryWatch(MemoryWatch watch)
@@ -131,18 +132,51 @@ namespace Dot6502
             LoadHexString(hex);
         }
 
+        public void SetOverflowFlag(bool set)
+        {
+            if (set) SetFlag(StateFlag.Overflow);
+            else ClearFlag(StateFlag.Overflow);
+        }
+
+        public void SetNegativeFlag(bool set)
+        {
+            if (set) SetFlag(StateFlag.Negative);
+            else ClearFlag(StateFlag.Negative);
+        }
+
         public void SetNegativeFlag(byte value)
         {
-            if (value > 0x7f) SetFlag(StateFlag.Negative);
-            else ClearFlag(StateFlag.Negative);
+            SetNegativeFlag(value > 0x7f);
+        }
+
+        public void SetCarryFlag(bool set)
+        {
+            if (set) SetFlag(StateFlag.Carry);
+            else ClearFlag(StateFlag.Carry);
+        }
+
+        public void SetZeroFlag(bool set)
+        {
+            if (set) SetFlag(StateFlag.Zero);
+            else ClearFlag(StateFlag.Zero);
         }
 
         public void SetZeroFlag(byte value)
         {
-            if (value == 0) SetFlag(StateFlag.Zero);
-            else ClearFlag(StateFlag.Zero);
+            SetZeroFlag(value == 0);
         }
 
+        internal void SetOverflowFlag(byte opa, byte opb, byte result)
+        {
+            var aNegative = opa > 0x7F;
+            var bNegative = opb > 0x7F;
+            var resultNegative = result > 0x7F;
+
+            if ((aNegative == bNegative) && aNegative != resultNegative) SetFlag(StateFlag.Overflow);
+            else ClearFlag(StateFlag.Overflow);
+        }
+
+        
         public void LoadHexString(string hexString)
         {
             var byteStrings = hexString.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);

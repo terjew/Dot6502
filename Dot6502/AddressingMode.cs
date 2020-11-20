@@ -1,8 +1,10 @@
 ﻿using Dot6502.AddressingModes;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("Dot6502Tests")]
 namespace Dot6502
 {
     public enum IndexMode

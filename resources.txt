@@ -1,0 +1,6 @@
+https://www.masswerk.at/6502/6502_instruction_set.html#BEQ
+http://www.obelisk.me.uk/6502/addressing.html
+http://www.6502asm.com/beta/index.html
+https://www.masswerk.at/6502/assembler.html
+https://www.masswerk.at/6502/index.html
+https://www.c64-wiki.com/wiki/AND_(assembler)
