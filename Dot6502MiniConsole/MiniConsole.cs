@@ -11,6 +11,8 @@ namespace Dot6502MiniConsole
     {
         private ExecutionState state;
         private Random random;
+        private byte[] backbuffer;
+
         private ConsoleColor[] colors = new ConsoleColor[]
         {
             ConsoleColor.Black,
@@ -42,19 +44,29 @@ namespace Dot6502MiniConsole
             random = new Random(2); //reuse seed for repeatable results
             Console.BackgroundColor = colors[0];
             Console.SetCursorPosition(0, 0);
-            Console.Write(".");
+            //Start buffer at 0xff to force all to invalidate
+            backbuffer = Enumerable.Repeat((byte)0xff, 0x400).ToArray();
+            for(int i = 0; i < 0x400; i++)
+            {                
+                //Clear screen to zero:
+                UpdateFramebuffer((ushort)(i + 0x200), 0x00);
+            }
+            Console.ReadKey();
         }
 
         private void UpdateFramebuffer(ushort pos, byte value)
         {
             pos -= 0x200;
+            if (backbuffer[pos] == value) return;
+            backbuffer[pos] = value;
             var col = pos / 32;
             var row = pos % 32;
             var color = value & 0x0f;
             Console.BackgroundColor = colors[color];
             Console.SetCursorPosition(row * 2, col);
-            var hex = string.Format("{0:x2}", value);            
-            Console.Write(hex);
+            var hex = string.Format("{0:x2}", value);
+            //Console.Write(hex);
+            Console.Write("  ");
         }
 
         public void Run()

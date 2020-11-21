@@ -70,8 +70,9 @@ namespace Dot6502
         public void WriteByte(ushort pos, byte value)
         {
             Memory[pos] = value;
-            foreach (var watch in watches.Where(w => w.IsInside(pos)))
+            foreach (var watch in watches)
             {
+                if (!watch.IsInside(pos)) continue;
                 watch.Callback(pos, value);
             }
         }
