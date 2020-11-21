@@ -10,11 +10,7 @@
         {
             if (!state.TestFlag(StateFlag.Zero))
             {
-                int offset = AddressingMode.Resolve(state).Get();
-                if (offset > 127)
-                {
-                    offset = offset - 256;
-                }
+                sbyte offset = unchecked((sbyte)AddressingMode.Resolve(state).Get());
                 state.PC = (ushort)(state.PC + offset + InstructionSize);
                 return 0;
             }

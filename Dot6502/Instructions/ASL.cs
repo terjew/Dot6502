@@ -12,14 +12,11 @@
             var operand = pointer.Get();
             var intResult = operand << 1;
 
-            bool carry = intResult > 255;
-            if (carry) state.SetFlag(StateFlag.Carry);
-            else state.ClearFlag(StateFlag.Carry);
-
             byte result = (byte)intResult;
 
             state.SetNegativeFlag(result);
             state.SetZeroFlag(result);
+            state.SetCarryFlag(intResult > 255);
 
             pointer.Set(result);
 

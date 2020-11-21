@@ -48,8 +48,8 @@ namespace Dot6502MiniConsole
         private void UpdateFramebuffer(ushort pos, byte value)
         {
             pos -= 0x200;
-            var col = pos % 32;
-            var row = pos / 32;
+            var col = pos / 32;
+            var row = pos % 32;
             var color = value & 0x0f;
             Console.BackgroundColor = colors[color];
             Console.SetCursorPosition(row * 2, col);
@@ -70,8 +70,7 @@ namespace Dot6502MiniConsole
         private void UpdateRandom()
         {
             //Update the random generator number:
-            //state.WriteByte(0x00FE, (byte)(random.Next(256)));
-            state.WriteByte(0x00FE, 0xff);
+            state.WriteByte(0x00FE, (byte)(random.Next(256)));
         }
 
         private void UpdateInput()
