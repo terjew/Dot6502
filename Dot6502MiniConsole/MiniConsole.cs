@@ -10,9 +10,18 @@ namespace Dot6502MiniConsole
 {
     public class MiniConsole
     {
+        const int FPS = 30;
+        const int FRAMETIME = 1000 / FPS;
+        const int FB_START = 0x0200;
+
+        private int frameCounter;
+        private DateTime lastFpsUpdate = DateTime.Now;
+        private DateTime nextSync = DateTime.Now;
         private ExecutionState state;
         private Random random;
         private byte[] backbuffer;
+        private int width;
+        private int height;
 
         private ConsoleColor[] colors = new ConsoleColor[]
         {
@@ -34,49 +43,61 @@ namespace Dot6502MiniConsole
             ConsoleColor.Cyan
         };
 
-        public MiniConsole()
+        public MiniConsole(int width, int height)
         {
+            this.width = width;
+            this.height = height;
+
             state = new ExecutionState();
-            state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05FF, UpdateFramebuffer));
+            state.AddMemoryWatch(new MemoryWatch(FB_START, (ushort)(FB_START + (width * height) - 1), UpdateFramebuffer));
             state.AddMemoryWatch(new MemoryWatch(0x00FD, 0x00FD, WaitForVSync));
-            Console.WindowWidth = 64;
-            Console.WindowHeight = 32;
-            Console.BufferWidth = 64;
-            Console.BufferHeight = 32;
-            Console.CursorVisible = false;
+
             random = new Random();
+            InitConsole();
+        }
+
+        private void InitConsole()
+        {
+            Console.WindowWidth = width * 2;
+            Console.WindowHeight = height;
+            Console.BufferWidth = width * 2;
+            Console.BufferHeight = height;
+            Console.CursorVisible = false;
             Console.BackgroundColor = colors[0];
             Console.SetCursorPosition(0, 0);
             //Start buffer at 0xff to force all to invalidate
-            backbuffer = Enumerable.Repeat((byte)0xff, 0x400).ToArray();
-            for(int i = 0; i < 0x400; i++)
-            {                
+            backbuffer = Enumerable.Repeat((byte)0xff, width * height).ToArray();
+            for (int i = 0; i < width * height; i++)
+            {
                 //Clear screen to zero:
                 UpdateFramebuffer((ushort)(i + 0x200), 0x00);
             }
         }
 
-        private DateTime lastSync = DateTime.Now;
-        const int FPS = 60;
-        const int frametime = 1000 / FPS;
-
         private void WaitForVSync(ushort arg1, byte arg2)
         {
-            var duration = DateTime.Now - lastSync;
-            if (duration.TotalMilliseconds < frametime)
+            while (DateTime.Now < nextSync)
             {
-                Thread.Sleep(frametime - (int)duration.TotalMilliseconds);
+                Thread.Yield();
             }
-            lastSync = DateTime.Now;
+            nextSync = DateTime.Now + TimeSpan.FromMilliseconds(FRAMETIME);
+            frameCounter++;
+            var elapsedSinceLastFPS = nextSync - lastFpsUpdate;
+            if (elapsedSinceLastFPS.TotalSeconds > 1)
+            {
+                Console.Title = $"FPS: {frameCounter}";
+                frameCounter = 0;
+                lastFpsUpdate = DateTime.Now;
+            }
         }
 
         private void UpdateFramebuffer(ushort pos, byte value)
         {
-            pos -= 0x200;
+            pos -= FB_START;
             if (backbuffer[pos] == value) return;
             backbuffer[pos] = value;
-            var col = pos / 32;
-            var row = pos % 32;
+            var col = pos / width;
+            var row = pos % width;
             var color = value & 0x0f;
             Console.BackgroundColor = colors[color];
             Console.SetCursorPosition(row * 2, col);
