@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Dot6502MiniConsole
 {
@@ -36,11 +37,13 @@ namespace Dot6502MiniConsole
         public MiniConsole()
         {
             state = new ExecutionState();
-            state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05ff, UpdateFramebuffer));
+            state.AddMemoryWatch(new MemoryWatch(0x0200, 0x05FF, UpdateFramebuffer));
+            state.AddMemoryWatch(new MemoryWatch(0x00FD, 0x00FD, WaitForVSync));
             Console.WindowWidth = 64;
             Console.WindowHeight = 32;
             Console.BufferWidth = 64;
             Console.BufferHeight = 32;
+            Console.CursorVisible = false;
             random = new Random();
             Console.BackgroundColor = colors[0];
             Console.SetCursorPosition(0, 0);
@@ -51,6 +54,20 @@ namespace Dot6502MiniConsole
                 //Clear screen to zero:
                 UpdateFramebuffer((ushort)(i + 0x200), 0x00);
             }
+        }
+
+        private DateTime lastSync = DateTime.Now;
+        const int FPS = 60;
+        const int frametime = 1000 / FPS;
+
+        private void WaitForVSync(ushort arg1, byte arg2)
+        {
+            var duration = DateTime.Now - lastSync;
+            if (duration.TotalMilliseconds < frametime)
+            {
+                Thread.Sleep(frametime - (int)duration.TotalMilliseconds);
+            }
+            lastSync = DateTime.Now;
         }
 
         private void UpdateFramebuffer(ushort pos, byte value)
@@ -64,7 +81,6 @@ namespace Dot6502MiniConsole
             Console.BackgroundColor = colors[color];
             Console.SetCursorPosition(row * 2, col);
             var hex = string.Format("{0:x2}", value);
-            //Console.Write(hex);
             Console.Write("  ");
         }
 

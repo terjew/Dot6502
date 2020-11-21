@@ -110,6 +110,7 @@ conwayloop cmp #$e0
             lda $02
             cmp #$05
             bne onecell
+            lsr $FD
             jmp starttick   
  
  
