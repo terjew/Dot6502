@@ -41,7 +41,7 @@ namespace Dot6502MiniConsole
             Console.WindowHeight = 32;
             Console.BufferWidth = 64;
             Console.BufferHeight = 32;
-            random = new Random(2); //reuse seed for repeatable results
+            random = new Random();
             Console.BackgroundColor = colors[0];
             Console.SetCursorPosition(0, 0);
             //Start buffer at 0xff to force all to invalidate
@@ -51,7 +51,6 @@ namespace Dot6502MiniConsole
                 //Clear screen to zero:
                 UpdateFramebuffer((ushort)(i + 0x200), 0x00);
             }
-            Console.ReadKey();
         }
 
         private void UpdateFramebuffer(ushort pos, byte value)

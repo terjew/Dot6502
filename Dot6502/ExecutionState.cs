@@ -27,7 +27,7 @@ namespace Dot6502
         public byte X; //X register
         public byte Y; //Y register
         public byte SR; //status register [NV-BDIZC]
-        public ushort SP = 0xFF; //stack pointer
+        public byte SP = 0xFF; //stack pointer
 
         private ushort stackBase = 0x0100;
 

@@ -259,6 +259,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       CLD           D8    1     2
             */
+            instructions[0xD8] = new CLD();
 
             /*
             CLI  Clear Interrupt Disable Bit
@@ -270,6 +271,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       CLI           58    1     2
             */
+            instructions[0x58] = new CLI();
 
             /*
             CLV  Clear Overflow Flag
@@ -596,6 +598,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       PHA           48    1     3
             */
+            instructions[0x48] = new PHA();
 
             /*
             PHP  Push Processor Status on Stack
@@ -607,6 +610,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       PHP           08    1     3
             */
+            instructions[0x08] = new PHP();
 
             /*
             PLA  Pull Accumulator from Stack
@@ -618,6 +622,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       PLA           68    1     4
             */
+            instructions[0x68] = new PLA();
 
             /*
             PLP  Pull Processor Status from Stack
@@ -629,6 +634,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       PLP           28    1     4
             */
+            instructions[0x28] = new PLP();
 
             /*
             ROL  Rotate One Bit Left (Memory or Accumulator)
@@ -723,6 +729,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       SED           F8    1     2
             */
+            instructions[0xF8] = new SED();
 
             /*
             SEI  Set Interrupt Disable Status
@@ -734,6 +741,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       SEI           78    1     2
             */
+            instructions[0x78] = new SEI();
 
             /*
             STA  Store Accumulator in Memory
@@ -825,6 +833,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       TSX           BA    1     2
             */
+            instructions[0xBA] = new TSX();
 
             /*
             TXA  Transfer Index X to Accumulator
@@ -848,6 +857,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       TXS           9A    1     2
             */
+            instructions[0x9A] = new TXS();
 
             /*
             TYA  Transfer Index Y to Accumulator
@@ -860,7 +870,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  implied       TYA           98    1     2
 
             */
-
+            instructions[0x98] = new TYA();
         }
 
         public static Instruction DecodeInstruction(ExecutionState state)
