@@ -125,6 +125,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BCC oper      90    2     2**
             */
+            instructions[0x90] = new BCC(Relative);
 
             /*
             BCS  Branch on Carry Set
@@ -136,6 +137,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BCS oper      B0    2     2**
             */
+            instructions[0xB0] = new BCS(Relative);
 
             /*
             BEQ  Branch on Result Zero
@@ -174,6 +176,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BMI oper      30    2     2**
             */
+            instructions[0x30] = new BMI(Relative);
 
             /*
             BNE  Branch on Result not Zero
@@ -197,6 +200,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BPL oper      10    2     2**
             */
+            instructions[0x10] = new BPL(Relative);
 
             /*
             BRK  Force Break
@@ -219,6 +223,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BVC oper      50    2     2**
             */
+            instructions[0x50] = new BVC(Relative);
 
             /*
             BVS  Branch on Overflow Set
@@ -230,6 +235,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  relative      BVC oper      70    2     2**
             */
+            instructions[0x70] = new BVS(Relative);
 
             /*
             CLC  Clear Carry Flag
@@ -254,7 +260,6 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  implied       CLD           D8    1     2
             */
 
-
             /*
             CLI  Clear Interrupt Disable Bit
 
@@ -276,6 +281,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       CLV           B8    1     2
             */
+            instructions[0xB8] = new CLV();
 
             /*
             CMP  Compare Memory with Accumulator
@@ -348,7 +354,10 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  absolute      DEC oper      CE    3     6
                  absolute,X    DEC oper,X    DE    3     7
             */
-
+            instructions[0xC6] = new DEC(Zeropage);
+            instructions[0xD6] = new DEC(ZeropageX);
+            instructions[0xCE] = new DEC(Absolute);
+            instructions[0xDE] = new DEC(AbsoluteX);
             /*
             DEX  Decrement Index X by One
 
@@ -359,6 +368,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       DEC           CA    1     2
             */
+            instructions[0xCA] = new DEX();
 
             /*
             DEY  Decrement Index Y by One
@@ -370,6 +380,8 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       DEC           88    1     2
             */
+            instructions[0x88] = new DEY();
+
 
             /*
             EOR  Exclusive-OR Memory with Accumulator
@@ -417,6 +429,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       INX           E8    1     2
             */
+            instructions[0xE8] = new INX();
 
             /*
             INY  Increment Index Y by One
@@ -428,6 +441,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       INY           C8    1     2
             */
+            instructions[0xC8] = new INY();
 
             /*
             JMP  Jump to New Location
@@ -536,6 +550,11 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  absolute      LSR oper      4E    3     6
                  absolute,X    LSR oper,X    5E    3     7
             */
+            instructions[0x4A] = new LSR(Accumulator);
+            instructions[0x46] = new LSR(Zeropage);
+            instructions[0x56] = new LSR(ZeropageX);
+            instructions[0x4E] = new LSR(Absolute);
+            instructions[0x5E] = new LSR(AbsoluteX);
 
             /*
             NOP  No Operation
@@ -547,6 +566,7 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  --------------------------------------------
                  implied       NOP           EA    1     2
             */
+            instructions[0xEA] = new NOP();
 
             /*
             ORA  OR Memory with Accumulator
