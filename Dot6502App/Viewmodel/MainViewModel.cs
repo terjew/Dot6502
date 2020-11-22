@@ -15,10 +15,16 @@ namespace Dot6502App.Viewmodel
 {
     class MainViewModel : BindableBase
     {
-        private ExecutionState _state;
-
         public GraphicsViewModel Graphics {get; private set; }
         public StatusBarViewModel Status { get; private set; }
+        public IEnumerable<int> TargetFPSValues { get; } = new[] { 10, 20, 30, 60, 120, 1000, 100000 };
+
+        private int targetFPS;
+        public int TargetFPS
+        {
+            get => targetFPS;
+            set => SetProperty(ref targetFPS, value);
+        }
 
         public ICommand PlayCommand { get; private set; }
         public ICommand PauseCommand { get; private set; }
@@ -26,6 +32,7 @@ namespace Dot6502App.Viewmodel
         public ICommand FrameCommand { get; private set; }
         public ICommand OpenCommand { get; private set; }
 
+        private ExecutionState _state;
         private Random random;
         private bool playing;
         private bool frameStepping;
@@ -34,8 +41,8 @@ namespace Dot6502App.Viewmodel
         {
             random = new Random(0);
 
-            //Graphics = new GraphicsViewModel(96, 64);
-            Graphics = new GraphicsViewModel(32, 32, GraphicsMode.RGB332);
+            TargetFPS = 20;
+            Graphics = new GraphicsViewModel(0x200, 32, 32);
             Status = new StatusBarViewModel();
 
             OpenCommand = new DelegateCommand(() => ShowOpenDialog());
@@ -112,12 +119,13 @@ namespace Dot6502App.Viewmodel
             _state = new ExecutionState();
             _state.LoadHexFile(filename);
             _state.AddMemoryWatch(new MemoryWatch(0xFD, 0xFD, VerticalSync));
+            Graphics.Memory = _state.Memory;
         }
 
-        private double frametime = 1000.0 / 20;
         private DateTime nextSync = DateTime.Now;
         private void VerticalSync(ushort arg1, byte arg2)
         {
+            var frametime = 1000.0 / targetFPS;
             if (frameStepping)
             {
                 frameStepping = false;
@@ -128,7 +136,7 @@ namespace Dot6502App.Viewmodel
                 playing = false;
                 Dispatcher.CurrentDispatcher.BeginInvoke(() => Play(), DispatcherPriority.ApplicationIdle);
             }
-            Graphics.Update(_state.Memory, 0x200);
+            Graphics.Update();
             Status.Frame();
 
             while (DateTime.Now < nextSync)

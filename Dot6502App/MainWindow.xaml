@@ -23,15 +23,15 @@
             </ToolBar>
 
             <ToolBar BandIndex="3">
-                Colors
+                <Label>Colors</Label>
                 <ComboBox ItemsSource="{Binding Graphics.ModeValues}" SelectedValue="{Binding Graphics.Mode}"/>
-                Width
+                <Label>Width</Label>
                 <ComboBox ItemsSource="{Binding Graphics.ResolutionValues}" SelectedValue="{Binding Graphics.Width}"/>
-                Height
+                <Label>Height</Label>
                 <ComboBox ItemsSource="{Binding Graphics.ResolutionValues}" SelectedValue="{Binding Graphics.Height}"/>
-                Target FPS
-                <ComboBox ItemsSource="{Binding FPSValues}" SelectedValue="{Binding TargetFPS}"/>
-                Scaling mode
+                <Label>Target FPS</Label>
+                <ComboBox ItemsSource="{Binding TargetFPSValues}" SelectedValue="{Binding TargetFPS}"/>
+                <Label>Scaling</Label>
                 <ComboBox ItemsSource="{Binding Graphics.ScalingModes}" SelectedValue="{Binding Graphics.ScalingMode}"/>
             </ToolBar>
 
@@ -49,9 +49,9 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="5*" />
             </Grid.ColumnDefinitions>
-            <TextBlock FontSize="55" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">Left side</TextBlock>
+            <TextBlock FontSize="55" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"></TextBlock>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
             <view:GraphicsView DataContext="{Binding Graphics}" Grid.Column="2"/>
         </Grid>

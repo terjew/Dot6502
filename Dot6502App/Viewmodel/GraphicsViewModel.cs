@@ -18,24 +18,24 @@ namespace Dot6502App.Viewmodel
 
     class GraphicsViewModel : BindableBase
     {
-        private int[] colormap = new []
+        private uint[] colormap = new []
         {
-            0x000000,//Black
-            0xffffff,//White
-            0x880000,//Red
-            0xaaffee,//Cyan
-            0xcc44cc,//Purple
-            0x00cc55,//Green
-            0x0000aa,//Blue
-            0xeeee77,//Yellow
-            0xdd8855,//Orange
-            0x664400,//Brown
-            0xff7777,//Light red
-            0x333333,//Dark gray
-            0x777777,//Gray
-            0xaaff66,//Light green
-            0x0088ff,//Light blue
-            0xbbbbbb,//Light gray
+            0xff000000,//Black
+            0xffffffff,//White
+            0xff880000,//Red
+            0xffaaffee,//Cyan
+            0xffcc44cc,//Purple
+            0xff00cc55,//Green
+            0xff0000aa,//Blue
+            0xffeeee77,//Yellow
+            0xffdd8855,//Orange
+            0xff664400,//Brown
+            0xffff7777,//Light red
+            0xff333333,//Dark gray
+            0xff777777,//Gray
+            0xffaaff66,//Light green
+            0xff0088ff,//Light blue
+            0xffbbbbbb,//Light gray
         };
 
         WriteableBitmap _bitmap;
@@ -47,7 +47,7 @@ namespace Dot6502App.Viewmodel
 
         public List<int> ResolutionValues { get; } = new List<int>() { 32, 64, 96, 128 };
         public List<GraphicsMode> ModeValues { get; } = new List<GraphicsMode>() { GraphicsMode.Palette16, GraphicsMode.RGB332 };
-        public List<BitmapScalingMode> ScalingModes { get; } = new List<BitmapScalingMode>() { BitmapScalingMode.HighQuality, BitmapScalingMode.NearestNeighbor };
+        public List<BitmapScalingMode> ScalingModes { get; } = new List<BitmapScalingMode>() { BitmapScalingMode.HighQuality, BitmapScalingMode.LowQuality, BitmapScalingMode.NearestNeighbor };
 
         private GraphicsMode mode;
         public GraphicsMode Mode
@@ -77,29 +77,52 @@ namespace Dot6502App.Viewmodel
             set => SetProperty(ref height, value);
         }
 
-        public GraphicsViewModel(int width, int height, GraphicsMode mode)
+        private byte[] memory;
+        public byte[] Memory
         {
+            get => memory;
+            set => SetProperty(ref memory, value);
+        }
+
+        private int offset;
+
+        public GraphicsViewModel(int offset, int width, int height)
+        {
+            ScalingMode = BitmapScalingMode.NearestNeighbor;
+            Mode = GraphicsMode.Palette16;
+
             Width = width;
             Height = height;
             Mode = mode;
 
             PropertyChanged += GraphicsViewModel_PropertyChanged;
 
+            this.offset = offset;
             Initialize();
         }
 
         private void Initialize()
         {
             Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
+            Update();
         }
 
         private void GraphicsViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(Bitmap)) Initialize();
+            if (e.PropertyName == "" ||
+                e.PropertyName == nameof(Width) ||
+                e.PropertyName == nameof(Height) ||
+                e.PropertyName == nameof(Mode) ||
+                e.PropertyName == nameof(Memory)
+            )
+            {
+                Initialize();
+            }
         }
 
-        public void Update(byte[] memory, int offset)
+        public void Update()
         {
+            if (memory == null) return;
             try
             {
                 // Reserve the back buffer for updates.
@@ -154,7 +177,7 @@ namespace Dot6502App.Viewmodel
 
                 return color_data;
             }
-            return colormap[src & 0x0f];
+            return (int)colormap[src & 0x0f];
         }
     }
 }
