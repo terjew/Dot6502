@@ -59,10 +59,12 @@ namespace Dot6502MiniConsole
 
         private void InitConsole()
         {
+#pragma warning disable CA1416 // Validate platform compatibility
             Console.WindowWidth = width * 2;
             Console.WindowHeight = height;
             Console.BufferWidth = width * 2;
             Console.BufferHeight = height;
+#pragma warning restore CA1416 // Validate platform compatibility
             Console.CursorVisible = false;
             Console.BackgroundColor = colors[0];
             Console.SetCursorPosition(0, 0);

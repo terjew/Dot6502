@@ -17,7 +17,7 @@ namespace Dot6502
         Carry = 0x01
     }
 
-    public class ExecutionState
+    public class ExecutionState : IDisposable
     {
         public byte[] Memory = new byte[65536];
 
@@ -32,6 +32,7 @@ namespace Dot6502
         private ushort stackBase = 0x0100;
 
         private List<MemoryWatch> watches = new List<MemoryWatch>();
+        private bool disposedValue;
 
         public ExecutionState()
         {
@@ -194,5 +195,25 @@ namespace Dot6502
             PC = location;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    watches.Clear();
+                }
+
+                Memory = null;
+                watches = null;
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

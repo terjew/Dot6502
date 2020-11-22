@@ -1,4 +1,5 @@
-﻿loop: lda $fe       ; A=rnd
+﻿*=$1337
+loop: lda $fe       ; A=rnd
       sta $00       ; ZP(0)=A
       lda $fe
       and #$3       ; A=A&3
@@ -8,4 +9,5 @@
       lda $fe       ; A=rnd
       ldy #$0       ; Y=0
       sta ($00),y   ; ZP(0),ZP(1)=y
+      inc $fd       ;wait for sync
       jmp loop
