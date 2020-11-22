@@ -1,8 +1,13 @@
 ﻿*=$0100
-LDA #$20
-STA $00
-LDA #$20
-STA $01
+LDX #$20
+STX $00
+DEX
+STX $08
+
+LDY #$20
+STY $01
+DEY
+STY $09
 
 LDA #$80
 STA $04
@@ -13,16 +18,20 @@ STA $06
 LDA #$00
 STA $07
 
-randomx	
+randx	
 LDA $FE
-CMP $00
-BCS randomx
+CMP $08
+BMI xok
+JMP randx
+xok
 TAX
 
-randomy
+randy
 LDA $FE
-CMP $01
-BCS randomy
+CMP $09
+BMI yok
+JMP randy
+yok
 TAY
 
 loop
@@ -45,7 +54,7 @@ DEY
 xdir
 TXA
 BEQ flipx
-CMP $00
+CMP $08
 BEQ flipx
 JMP ydir
 flipx
@@ -57,7 +66,7 @@ STA $04
 ydir
 TYA
 BEQ flipy
-CMP $00
+CMP $09
 BEQ flipy
 JMP drawball
 flipy
@@ -69,6 +78,9 @@ STA $05
 drawball
 STX $02
 STY $03
+LDY #$00
+LDA #$00
+STA ($06),Y
 JSR calcrow
 LDY #$00
 LDA #$01

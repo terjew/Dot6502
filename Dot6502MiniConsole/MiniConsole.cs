@@ -10,7 +10,7 @@ namespace Dot6502MiniConsole
 {
     public class MiniConsole
     {
-        const int FPS = 30;
+        const int FPS = 20;
         const int FRAMETIME = 1000 / FPS;
         const int FB_START = 0x0200;
 
