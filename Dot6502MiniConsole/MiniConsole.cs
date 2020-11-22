@@ -15,6 +15,7 @@ namespace Dot6502MiniConsole
         const int FB_START = 0x0200;
 
         private int frameCounter;
+        private int instructionCounter;
         private DateTime lastFpsUpdate = DateTime.Now;
         private DateTime nextSync = DateTime.Now;
         private ExecutionState state;
@@ -85,8 +86,9 @@ namespace Dot6502MiniConsole
             var elapsedSinceLastFPS = nextSync - lastFpsUpdate;
             if (elapsedSinceLastFPS.TotalSeconds > 1)
             {
-                Console.Title = $"FPS: {frameCounter}";
+                Console.Title = $"FPS: {frameCounter} IPS: {instructionCounter}";
                 frameCounter = 0;
+                instructionCounter = 0;
                 lastFpsUpdate = DateTime.Now;
             }
         }
@@ -112,6 +114,7 @@ namespace Dot6502MiniConsole
                 UpdateInput();
                 UpdateRandom();
                 state.StepExecution();
+                instructionCounter++;
             }
         }
 
