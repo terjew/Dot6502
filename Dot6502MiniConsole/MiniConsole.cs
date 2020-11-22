@@ -96,11 +96,11 @@ namespace Dot6502MiniConsole
             pos -= FB_START;
             if (backbuffer[pos] == value) return;
             backbuffer[pos] = value;
-            var col = pos / width;
-            var row = pos % width;
+            var Y = pos / width;
+            var X = pos % width;
             var color = value & 0x0f;
             Console.BackgroundColor = colors[color];
-            Console.SetCursorPosition(row * 2, col);
+            Console.SetCursorPosition(X * 2, Y);
             var hex = string.Format("{0:x2}", value);
             Console.Write("  ");
         }

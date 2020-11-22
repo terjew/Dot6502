@@ -8,7 +8,8 @@ namespace Dot6502MiniConsole
         {
             var console = new MiniConsole(32, 32);
             //console.LoadProgram("SamplePrograms/random.hex");
-            console.LoadProgram("SamplePrograms/conway.hex");
+            console.LoadProgram("SamplePrograms/ball.hex");
+            //console.LoadProgram("SamplePrograms/conway.hex");
             console.Run();
         }
     }
