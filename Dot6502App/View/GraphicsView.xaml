@@ -11,7 +11,7 @@
                Stretch="Uniform" 
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Stretch" 
-               RenderOptions.BitmapScalingMode="NearestNeighbor"
+               RenderOptions.BitmapScalingMode="{Binding ScalingMode}"
                />
     </Grid>
 </UserControl>

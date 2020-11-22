@@ -9,17 +9,30 @@
         Title="Dot6502" Height="450" Width="800">
     <DockPanel >
         <ToolBarTray DockPanel.Dock="Top">
-            <ToolBar DockPanel.Dock="Top">
+            <ToolBar BandIndex="1">
                 <Button Content="Open" Command="{Binding OpenCommand}" />
                 <Button Content="Save" />
                 <Button Content="New" />
             </ToolBar>
 
-            <ToolBar DockPanel.Dock="Top">
+            <ToolBar BandIndex="2">
                 <Button Content="Play" Command="{Binding PlayCommand}"/>
                 <Button Content="Pause" Command="{Binding PauseCommand}"/>
                 <Button Content="Step" Command="{Binding StepCommand}"/>
                 <Button Content="Frame" Command="{Binding FrameCommand}"/>
+            </ToolBar>
+
+            <ToolBar BandIndex="3">
+                Colors
+                <ComboBox ItemsSource="{Binding Graphics.ModeValues}" SelectedValue="{Binding Graphics.Mode}"/>
+                Width
+                <ComboBox ItemsSource="{Binding Graphics.ResolutionValues}" SelectedValue="{Binding Graphics.Width}"/>
+                Height
+                <ComboBox ItemsSource="{Binding Graphics.ResolutionValues}" SelectedValue="{Binding Graphics.Height}"/>
+                Target FPS
+                <ComboBox ItemsSource="{Binding FPSValues}" SelectedValue="{Binding TargetFPS}"/>
+                Scaling mode
+                <ComboBox ItemsSource="{Binding Graphics.ScalingModes}" SelectedValue="{Binding Graphics.ScalingMode}"/>
             </ToolBar>
 
         </ToolBarTray>
