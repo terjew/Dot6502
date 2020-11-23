@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Dot6502App.Views
+namespace Dot6502App.View
 {
     /// <summary>
     /// Interaction logic for StatusBarView.xaml
