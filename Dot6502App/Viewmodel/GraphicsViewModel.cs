@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Dot6502App.Model;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,14 +78,20 @@ namespace Dot6502App.Viewmodel
             set => SetProperty(ref height, value);
         }
 
-        private byte[] memory;
-        public byte[] Memory
+        private int offset;
+        public int Offset
         {
-            get => memory;
-            set => SetProperty(ref memory, value);
+            get => offset;
+            set => SetProperty(ref offset, value);
         }
 
-        private int offset;
+        private ExecutionModel executionModel;
+        public ExecutionModel ExecutionModel
+        {
+            get => executionModel;
+            set => SetProperty(ref executionModel, value);
+        }
+
 
         public GraphicsViewModel(int offset, int width, int height)
         {
@@ -113,7 +120,7 @@ namespace Dot6502App.Viewmodel
                 e.PropertyName == nameof(Width) ||
                 e.PropertyName == nameof(Height) ||
                 e.PropertyName == nameof(Mode) ||
-                e.PropertyName == nameof(Memory)
+                e.PropertyName == nameof(ExecutionModel)
             )
             {
                 Initialize();
@@ -122,7 +129,7 @@ namespace Dot6502App.Viewmodel
 
         public void Update()
         {
-            if (memory == null) return;
+            if (ExecutionModel?.State == null) return;
             try
             {
                 // Reserve the back buffer for updates.
@@ -130,7 +137,7 @@ namespace Dot6502App.Viewmodel
 
                 unsafe
                 {
-                    fixed (byte* bytePtr = memory)
+                    fixed (byte* bytePtr = ExecutionModel.State.Memory)
                     {
                         byte* srcPtr = bytePtr + offset;
                         IntPtr dstPtr = _bitmap.BackBuffer;

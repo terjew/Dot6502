@@ -1,4 +1,5 @@
 ﻿using Dot6502;
+using Dot6502App.Model;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -23,81 +24,72 @@ namespace Dot6502App.Viewmodel
         public int TargetFPS
         {
             get => targetFPS;
-            set => SetProperty(ref targetFPS, value);
+            set {
+                if (SetProperty(ref targetFPS, value))
+                {
+                    _executionModel.TargetFPS = value;
+                }
+            }
         }
 
-        public ICommand PlayCommand { get; private set; }
-        public ICommand PauseCommand { get; private set; }
-        public ICommand StepCommand { get; private set; }
-        public ICommand FrameCommand { get; private set; }
-        public ICommand OpenCommand { get; private set; }
+        public DelegateCommand PlayCommand { get; private set; }
+        public DelegateCommand PauseCommand { get; private set; }
+        public DelegateCommand StepCommand { get; private set; }
+        public DelegateCommand FrameCommand { get; private set; }
 
-        private ExecutionState _state;
-        private Random random;
-        private bool playing;
-        private bool frameStepping;
+        private ExecutionModel _executionModel;
+
+        public DelegateCommand OpenCommand { get; private set; }
+
+        private bool running;
+        public bool Running
+        {
+            get => running;
+            set => SetProperty(ref running, value);
+        }
+
+        private bool programLoaded;
+        public bool ProgramLoaded
+        {
+            get => programLoaded;
+            set => SetProperty(ref programLoaded, value);
+        }
 
         public MainViewModel()
         {
-            random = new Random(0);
-
-            TargetFPS = 20;
             Graphics = new GraphicsViewModel(0x200, 32, 32);
             Status = new StatusBarViewModel();
 
-            OpenCommand = new DelegateCommand(() => ShowOpenDialog());
-            PlayCommand = new DelegateCommand(() => Play());
-            PauseCommand = new DelegateCommand(() => Pause());
-            StepCommand = new DelegateCommand(() => Step());
-            FrameCommand = new DelegateCommand(() => Frame());
+            OpenCommand = new DelegateCommand(() => ShowOpenDialog(), () => !Running).ObservesProperty(() => Running);
+            PlayCommand = new DelegateCommand(() => _executionModel.Play(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            PauseCommand = new DelegateCommand(() => _executionModel.Pause(), () => ProgramLoaded && Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            StepCommand = new DelegateCommand(() => _executionModel.StepInstruction(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            FrameCommand = new DelegateCommand(() => _executionModel.StepFrame(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+
+            _executionModel = new ExecutionModel(LoadedCB, FrameCB, StartCB, StopCB);
+            TargetFPS = 60;
         }
 
-        private void Frame()
+        private void StartCB()
         {
-            frameStepping = true;
-            Play();
+            Running = true;
         }
 
-        private void Pause()
+        private void StopCB()
         {
-            frameStepping = true;
-            playing = false;
+            Running = false;
         }
 
-        private void Play()
+        private void LoadedCB()
         {
-            playing = true;
-            while (playing)
-            {
-                Step();
-            }
+            Graphics.ExecutionModel = _executionModel;
+            ProgramLoaded = true;
         }
 
-        private void Step()
+        private void FrameCB(int instructions)
         {
-            UpdateInput();
-            UpdateRandom();
-            _state.StepExecution();
-            Status.Instruction();
-        }
-
-        private byte[] randomBuffer = new byte[1024];
-        private int randomIndex = 1023;
-
-        private void UpdateRandom()
-        {
-            if (randomIndex >= randomBuffer.Length - 1)
-            {
-                random.NextBytes(randomBuffer);
-                randomIndex = 0;
-            }
-            //Update the random generator number:
-            _state.WriteByte(0x00FE, randomBuffer[randomIndex++]);
-        }
-
-        private void UpdateInput()
-        {
-            //FIXME: Implement
+            Status.Frame(instructions);
+            Graphics.Update();
         }
 
         private void ShowOpenDialog()
@@ -108,42 +100,8 @@ namespace Dot6502App.Viewmodel
             var result = fileDialog.ShowDialog();
             if (result == true)
             {
-                Load(fileDialog.FileName);
+                _executionModel.Load(fileDialog.FileName);
             }
-        }
-
-        public void Load(string filename)
-        {
-            if (_state != null) _state.Dispose();
-
-            _state = new ExecutionState();
-            _state.LoadHexFile(filename);
-            _state.AddMemoryWatch(new MemoryWatch(0xFD, 0xFD, VerticalSync));
-            Graphics.Memory = _state.Memory;
-        }
-
-        private DateTime nextSync = DateTime.Now;
-        private void VerticalSync(ushort arg1, byte arg2)
-        {
-            var frametime = 1000.0 / targetFPS;
-            if (frameStepping)
-            {
-                frameStepping = false;
-                playing = false;
-            }
-            else if (playing)
-            {
-                playing = false;
-                Dispatcher.CurrentDispatcher.BeginInvoke(() => Play(), DispatcherPriority.ApplicationIdle);
-            }
-            Graphics.Update();
-            Status.Frame();
-
-            while (DateTime.Now < nextSync)
-            {
-                Thread.Yield();
-            }
-            nextSync = DateTime.Now + TimeSpan.FromMilliseconds(frametime);
         }
 
     }

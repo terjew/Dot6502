@@ -27,16 +27,12 @@ namespace Dot6502App.Viewmodel
         private int frameCounter = 0;
         private int instructionCounter = 0;
 
-        internal void Frame()
+        internal void Frame(int instructions)
         {
             frameCounter++;
-        }
-
-        internal void Instruction()
-        {
-            instructionCounter++;
+            instructionCounter += instructions;
             var duration = DateTime.Now - lastUpdate;
-            if (duration.TotalSeconds > 1)
+            if (duration.TotalSeconds > 0.2)
             {
                 FPS = (int)(frameCounter / duration.TotalSeconds);
                 IPS = (int)(instructionCounter / duration.TotalSeconds);
@@ -45,5 +41,6 @@ namespace Dot6502App.Viewmodel
                 instructionCounter = 0;
             }
         }
+
     }
 }
