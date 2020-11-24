@@ -7,9 +7,6 @@ namespace Dot6502App.Model
 {
     class ExecutionModel
     {
-        public Dispatcher Dispatcher { get; }
-        public ExecutionState State { get; private set; }
-
         private Action _loadedCallback;
         private Action<int> _frameCallback;
         private Action _startCallback;
@@ -20,6 +17,18 @@ namespace Dot6502App.Model
         private DateTime nextSync = DateTime.Now;
         private int instructionCount = 0;
 
+        private bool frameStepping;
+        private bool singleStepping;
+        private bool playing;
+        private Random random;
+
+        private byte[] randomBuffer = new byte[65535];
+        private int randomIndex = 65535;
+        private bool randomInitialized = false;
+        private Dispatcher _dispatcher { get; }
+        private ManualResetEventSlim playingEvent = new ManualResetEventSlim(false);
+
+        public ExecutionState State { get; private set; }
         public int TargetFPS { get; set; } = 20;
 
         public ExecutionModel(Action loadedCallback, 
@@ -27,7 +36,7 @@ namespace Dot6502App.Model
             Action startCallback,
             Action stopCallback)
         {
-            Dispatcher = Dispatcher.CurrentDispatcher;
+            _dispatcher = Dispatcher.CurrentDispatcher;
             _loadedCallback = loadedCallback;
             _frameCallback = frameCallback;
             _startCallback = startCallback;
@@ -38,29 +47,31 @@ namespace Dot6502App.Model
             thread = new Thread(new ThreadStart(ThreadRun));
             thread.Start();
 
-            Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
+            _dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
         }
 
         private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
         {
             exit = true;
             Stop();
+            playingEvent.Set();
         }
 
         private void ThreadRun()
         {
             while(!exit)
             {
-                while (!playing && !exit)
+                playingEvent.Wait();
+                playingEvent.Reset();
+                if (!exit)
                 {
-                    Thread.Yield();
+                    _dispatcher.Invoke(_startCallback);
+                    while (playing && !exit)
+                    {
+                        StepExecution();
+                    }
+                    if (!exit) _dispatcher.Invoke(_stopCallback);
                 }
-                if (!exit) Dispatcher.Invoke(_startCallback);
-                while (playing && !exit)
-                {
-                    StepExecution();
-                }
-                if (!exit) Dispatcher.Invoke(_stopCallback);
             }
         }
 
@@ -76,17 +87,6 @@ namespace Dot6502App.Model
             instructionCount++;
         }
 
-        private bool frameStepping;
-        private bool singleStepping;
-        private bool playing;
-        private Random random;
-
-        public void StepFrame()
-        {
-            frameStepping = true;
-            playing = true;
-        }
-
         public void Pause()
         {
             Stop();
@@ -94,14 +94,25 @@ namespace Dot6502App.Model
 
         public void Play()
         {
-            if (State == null) return;
-            playing = true;
+            SignalPlaying();
         }
 
         public void StepInstruction()
         {
             singleStepping = true;
+            SignalPlaying();
+        }
+
+        public void StepFrame()
+        {
+            frameStepping = true;
+            SignalPlaying();
+        }
+
+        private void SignalPlaying()
+        {
             playing = true;
+            playingEvent.Set();
         }
 
         private void Stop()
@@ -111,10 +122,6 @@ namespace Dot6502App.Model
             playing = false;
         }
 
-        private byte[] randomBuffer = new byte[65535];
-        private int randomIndex = 65535;
-
-        private bool randomInitialized = false;
         private void UpdateRandom()
         {
             if (!randomInitialized)
@@ -146,7 +153,7 @@ namespace Dot6502App.Model
 
         private void VerticalSync(ushort arg1, byte arg2)
         {
-            Dispatcher.Invoke(_frameCallback, instructionCount);
+            _dispatcher.Invoke(_frameCallback, instructionCount);
             instructionCount = 0;
 
             if (frameStepping)
