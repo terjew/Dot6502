@@ -76,7 +76,6 @@ namespace Dot6502App.Model
             instructionCount++;
         }
 
-
         private bool frameStepping;
         private bool singleStepping;
         private bool playing;
@@ -112,14 +111,19 @@ namespace Dot6502App.Model
             playing = false;
         }
 
-        private byte[] randomBuffer = new byte[1024];
-        private int randomIndex = 1023;
+        private byte[] randomBuffer = new byte[65535];
+        private int randomIndex = 65535;
 
+        private bool randomInitialized = false;
         private void UpdateRandom()
         {
-            if (randomIndex >= randomBuffer.Length - 1)
+            if (!randomInitialized)
             {
                 random.NextBytes(randomBuffer);
+                randomInitialized = true;
+            }
+            if (randomIndex >= randomBuffer.Length - 1)
+            {
                 randomIndex = 0;
             }
             State.Memory[0x00FE] = randomBuffer[randomIndex++];
