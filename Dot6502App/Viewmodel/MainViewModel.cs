@@ -1,16 +1,9 @@
-﻿using Dot6502;
-using Dot6502App.Model;
+﻿using Dot6502App.Model;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace Dot6502App.Viewmodel
 {
@@ -18,6 +11,8 @@ namespace Dot6502App.Viewmodel
     {
         public GraphicsViewModel Graphics {get; private set; }
         public StatusBarViewModel Status { get; private set; }
+        public MemoryViewModel Memory { get; private set; }
+
         public IEnumerable<int> TargetFPSValues { get; } = new[] { 10, 20, 30, 60, 120, 1000, 100000 };
 
         private int targetFPS;
@@ -27,7 +22,7 @@ namespace Dot6502App.Viewmodel
             set {
                 if (SetProperty(ref targetFPS, value))
                 {
-                    _executionModel.TargetFPS = value;
+                    executionModel.TargetFPS = value;
                 }
             }
         }
@@ -36,8 +31,9 @@ namespace Dot6502App.Viewmodel
         public DelegateCommand PauseCommand { get; private set; }
         public DelegateCommand StepCommand { get; private set; }
         public DelegateCommand FrameCommand { get; private set; }
+        public DelegateCommand ResetCommand { get; private set; }
 
-        private ExecutionModel _executionModel;
+        private EmulationModel executionModel;
 
         public DelegateCommand OpenCommand { get; private set; }
 
@@ -57,39 +53,44 @@ namespace Dot6502App.Viewmodel
 
         public MainViewModel()
         {
-            Graphics = new GraphicsViewModel(0x200, 32, 32);
-            Status = new StatusBarViewModel();
-
             OpenCommand = new DelegateCommand(() => ShowOpenDialog(), () => !Running).ObservesProperty(() => Running);
-            PlayCommand = new DelegateCommand(() => _executionModel.Play(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
-            PauseCommand = new DelegateCommand(() => _executionModel.Pause(), () => ProgramLoaded && Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
-            StepCommand = new DelegateCommand(() => _executionModel.StepInstruction(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
-            FrameCommand = new DelegateCommand(() => _executionModel.StepFrame(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            ResetCommand = new DelegateCommand(() => executionModel.Reset(), () => ProgramLoaded).ObservesProperty(() => ProgramLoaded);
+            PlayCommand = new DelegateCommand(() => executionModel.Play(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            PauseCommand = new DelegateCommand(() => executionModel.Pause(), () => ProgramLoaded && Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            StepCommand = new DelegateCommand(() => executionModel.StepInstruction(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
+            FrameCommand = new DelegateCommand(() => executionModel.StepFrame(), () => ProgramLoaded && !Running).ObservesProperty(() => ProgramLoaded).ObservesProperty(() => Running);
 
-            _executionModel = new ExecutionModel(LoadedCB, FrameCB, StartCB, StopCB);
+            executionModel = new EmulationModel();
+            executionModel.Loaded += ExecutionModel_Loaded;
+            executionModel.Started += ExecutionModel_Started;
+            executionModel.Stopped += ExecutionModel_Stopped;
+            executionModel.Frame += ExecutionModel_Frame;
+
+            Graphics = new GraphicsViewModel(executionModel, 0x200, 32, 32);
+            Status = new StatusBarViewModel();
+            Memory = new MemoryViewModel(executionModel);
+
             TargetFPS = 60;
         }
 
-        private void StartCB()
+        private void ExecutionModel_Frame(object sender, int instructions)
         {
-            Running = true;
+            Status.Frame(instructions);
         }
 
-        private void StopCB()
+        private void ExecutionModel_Stopped(object sender, EventArgs e)
         {
             Running = false;
         }
 
-        private void LoadedCB()
+        private void ExecutionModel_Started(object sender, EventArgs e)
         {
-            Graphics.ExecutionModel = _executionModel;
-            ProgramLoaded = true;
+            Running = true;
         }
 
-        private void FrameCB(int instructions)
+        private void ExecutionModel_Loaded(object sender, EventArgs e)
         {
-            Status.Frame(instructions);
-            Graphics.Update();
+            ProgramLoaded = true;
         }
 
         private void ShowOpenDialog()
@@ -100,7 +101,7 @@ namespace Dot6502App.Viewmodel
             var result = fileDialog.ShowDialog();
             if (result == true)
             {
-                _executionModel.Load(fileDialog.FileName);
+                executionModel.Load(fileDialog.FileName);
             }
         }
 

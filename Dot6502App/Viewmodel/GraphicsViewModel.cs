@@ -2,9 +2,6 @@
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -19,6 +16,8 @@ namespace Dot6502App.Viewmodel
 
     class GraphicsViewModel : BindableBase
     {
+        private EmulationModel executionModel;
+
         private uint[] colormap = new []
         {
             0xff000000,//Black
@@ -79,21 +78,14 @@ namespace Dot6502App.Viewmodel
         }
 
         private int offset;
+
         public int Offset
         {
             get => offset;
             set => SetProperty(ref offset, value);
         }
 
-        private ExecutionModel executionModel;
-        public ExecutionModel ExecutionModel
-        {
-            get => executionModel;
-            set => SetProperty(ref executionModel, value);
-        }
-
-
-        public GraphicsViewModel(int offset, int width, int height)
+        public GraphicsViewModel(EmulationModel executionModel, int offset, int width, int height)
         {
             ScalingMode = BitmapScalingMode.NearestNeighbor;
             Mode = GraphicsMode.Palette16;
@@ -105,13 +97,25 @@ namespace Dot6502App.Viewmodel
             PropertyChanged += GraphicsViewModel_PropertyChanged;
 
             this.offset = offset;
+            this.executionModel = executionModel;
+            executionModel.Frame += ExecutionModel_Frame;
+            executionModel.Loaded += ExecutionModel_Loaded;
+        }
+
+        private void ExecutionModel_Loaded(object sender, EventArgs e)
+        {
             Initialize();
+        }
+
+        private void ExecutionModel_Frame(object sender, int e)
+        {
+            DrawFrame();
         }
 
         private void Initialize()
         {
             Bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
-            Update();
+            DrawFrame();
         }
 
         private void GraphicsViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -120,16 +124,16 @@ namespace Dot6502App.Viewmodel
                 e.PropertyName == nameof(Width) ||
                 e.PropertyName == nameof(Height) ||
                 e.PropertyName == nameof(Mode) ||
-                e.PropertyName == nameof(ExecutionModel)
+                e.PropertyName == nameof(EmulationModel)
             )
             {
                 Initialize();
             }
         }
 
-        public void Update()
+        public void DrawFrame()
         {
-            if (ExecutionModel?.State == null) return;
+            if (executionModel?.State == null) return;
             try
             {
                 // Reserve the back buffer for updates.
@@ -137,7 +141,7 @@ namespace Dot6502App.Viewmodel
 
                 unsafe
                 {
-                    fixed (byte* bytePtr = ExecutionModel.State.Memory)
+                    fixed (byte* bytePtr = executionModel.State.Memory)
                     {
                         byte* srcPtr = bytePtr + offset;
                         IntPtr dstPtr = _bitmap.BackBuffer;

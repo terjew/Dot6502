@@ -10,6 +10,9 @@
     <Compile Update="View\GraphicsView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="View\MemoryView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="View\StatusBarView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -19,6 +22,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="View\GraphicsView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\MemoryView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="View\StatusBarView.xaml">

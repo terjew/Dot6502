@@ -18,6 +18,12 @@
                         <TextBlock Margin="5,0">Open</TextBlock>
                     </StackPanel>
                 </Button>
+                <Button Command="{Binding ResetCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconpacks:PackIconModern Kind="Reset" />
+                        <TextBlock Margin="5,0">Reset</TextBlock>
+                    </StackPanel>
+                </Button>
             </ToolBar>
 
             <ToolBar BandIndex="2">
@@ -72,12 +78,15 @@
         </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="5*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock FontSize="55" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"></TextBlock>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+            <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
+            <view:MemoryView Grid.Column="0" DataContext="{Binding Memory}" />
             <view:GraphicsView DataContext="{Binding Graphics}" Grid.Column="2"/>
         </Grid>
     </DockPanel>

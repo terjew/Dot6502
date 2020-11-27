@@ -30,6 +30,7 @@ namespace Dot6502
         public byte SP = 0xFF; //stack pointer
 
         private ushort stackBase = 0x0100;
+        private ushort StartLocation;
 
         private List<MemoryWatch> watches = new List<MemoryWatch>();
         private bool disposedValue;
@@ -76,6 +77,16 @@ namespace Dot6502
                 if (!watch.IsInside(pos)) continue;
                 watch.Callback(pos, value);
             }
+        }
+
+        public void Reset()
+        {
+            AC = 0;
+            X = 0;
+            Y = 0;
+            SR = 0x20;
+            SP = 0xFF;
+            PC = StartLocation;
         }
 
         public ushort ReadWord(ushort pos)
@@ -178,7 +189,7 @@ namespace Dot6502
             else ClearFlag(StateFlag.Overflow);
         }
 
-        
+
         public void LoadHexString(string hexString)
         {
             var byteStrings = hexString.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -192,6 +203,7 @@ namespace Dot6502
         public void LoadProgram(byte[] program, ushort location)
         {
             Array.Copy(program, 0, Memory, location, program.Length);
+            this.StartLocation = location;
             PC = location;
         }
 

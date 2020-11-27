@@ -5,12 +5,12 @@ using System.Windows.Threading;
 
 namespace Dot6502App.Model
 {
-    class ExecutionModel
+    class EmulationModel
     {
-        private Action _loadedCallback;
-        private Action<int> _frameCallback;
-        private Action _startCallback;
-        private Action _stopCallback;
+        public event EventHandler Loaded = delegate { };
+        public event EventHandler Started = delegate { };
+        public event EventHandler Stopped = delegate { };
+        public event EventHandler<int> Frame = delegate { };
 
         private bool exit = false;
         private Thread thread;
@@ -20,27 +20,21 @@ namespace Dot6502App.Model
         private bool frameStepping;
         private bool singleStepping;
         private bool playing;
+        private bool resetting;
         private Random random;
 
         private byte[] randomBuffer = new byte[65535];
         private int randomIndex = 65535;
         private bool randomInitialized = false;
         private Dispatcher _dispatcher { get; }
-        private ManualResetEventSlim playingEvent = new ManualResetEventSlim(false);
+        private ManualResetEventSlim syncEvent = new ManualResetEventSlim(false);
 
         public ExecutionState State { get; private set; }
         public int TargetFPS { get; set; } = 20;
 
-        public ExecutionModel(Action loadedCallback, 
-            Action<int> frameCallback, 
-            Action startCallback,
-            Action stopCallback)
+        public EmulationModel()
         {
             _dispatcher = Dispatcher.CurrentDispatcher;
-            _loadedCallback = loadedCallback;
-            _frameCallback = frameCallback;
-            _startCallback = startCallback;
-            _stopCallback = stopCallback;
 
             random = new Random(0);
 
@@ -54,23 +48,29 @@ namespace Dot6502App.Model
         {
             exit = true;
             Stop();
-            playingEvent.Set();
+            syncEvent.Set();
         }
 
         private void ThreadRun()
         {
             while(!exit)
             {
-                playingEvent.Wait();
-                playingEvent.Reset();
+                syncEvent.Wait();
+                syncEvent.Reset();
+                if (resetting)
+                {
+                    resetting = false;
+                    State.Reset();
+                    if (!playing) continue;
+                }
                 if (!exit)
                 {
-                    _dispatcher.Invoke(_startCallback);
-                    while (playing && !exit)
+                    _dispatcher.Invoke(() => Started(this, EventArgs.Empty));
+                    while (playing && !exit && !resetting)
                     {
                         StepExecution();
                     }
-                    if (!exit) _dispatcher.Invoke(_stopCallback);
+                    if (!exit) _dispatcher.Invoke(() => Stopped(this, EventArgs.Empty));
                 }
             }
         }
@@ -97,6 +97,12 @@ namespace Dot6502App.Model
             SignalPlaying();
         }
 
+        internal void Reset()
+        {
+            resetting = true;
+            syncEvent.Set();
+        }
+
         public void StepInstruction()
         {
             singleStepping = true;
@@ -112,7 +118,7 @@ namespace Dot6502App.Model
         private void SignalPlaying()
         {
             playing = true;
-            playingEvent.Set();
+            syncEvent.Set();
         }
 
         private void Stop()
@@ -148,12 +154,12 @@ namespace Dot6502App.Model
             State = new ExecutionState();
             State.LoadHexFile(filename);
             State.AddMemoryWatch(new MemoryWatch(0xFD, 0xFD, VerticalSync));
-            _loadedCallback();
+            Loaded(this, EventArgs.Empty);
         }
 
         private void VerticalSync(ushort arg1, byte arg2)
         {
-            _dispatcher.Invoke(_frameCallback, instructionCount);
+            _dispatcher.Invoke(() => Frame(this, instructionCount));
             instructionCount = 0;
 
             if (frameStepping)
