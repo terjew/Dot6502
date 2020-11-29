@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Dot6502App.View.MemoryView"
+﻿<UserControl x:Class="Dot6502App.View.DisassemblyView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,14 +9,12 @@
     <Grid>
         <StackPanel>
             <StackPanel Orientation="Horizontal">
-                <Label>Offset</Label>
-                <ComboBox SelectedValue="{Binding Offset}" ItemsSource="{Binding Offsets}" />
                 <CheckBox Margin="10,0,0,0" Content="Update while playing" IsChecked="{Binding UpdateWhilePlaying}" />
             </StackPanel>
             <ItemsControl ItemsSource="{Binding Lines}" Margin="5">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock FontFamily="Courier New" FontSize="16" Text="{Binding .}"/>
+                        <TextBlock Background="{Binding Background}" FontFamily="Courier New" FontSize="16" Text="{Binding Text}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

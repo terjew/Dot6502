@@ -80,7 +80,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
@@ -88,6 +88,7 @@
             <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
             <view:MemoryView Grid.Column="0" DataContext="{Binding Memory}" />
             <view:GraphicsView DataContext="{Binding Graphics}" Grid.Column="2"/>
+            <view:DisassemblyView DataContext="{Binding Disassembly}" Grid.Column="4"/>
         </Grid>
     </DockPanel>
 </mah:MetroWindow>

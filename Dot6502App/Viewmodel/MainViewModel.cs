@@ -12,6 +12,7 @@ namespace Dot6502App.Viewmodel
         public GraphicsViewModel Graphics {get; private set; }
         public StatusBarViewModel Status { get; private set; }
         public MemoryViewModel Memory { get; private set; }
+        public DisassemblyViewModel Disassembly { get; private set; }
 
         public IEnumerable<int> TargetFPSValues { get; } = new[] { 10, 20, 30, 60, 120, 1000, 100000 };
 
@@ -69,6 +70,7 @@ namespace Dot6502App.Viewmodel
             Graphics = new GraphicsViewModel(executionModel, 0x200, 32, 32);
             Status = new StatusBarViewModel();
             Memory = new MemoryViewModel(executionModel);
+            Disassembly = new DisassemblyViewModel(executionModel);
 
             TargetFPS = 60;
         }

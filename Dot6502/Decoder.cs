@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Dot6502
 {
-    class Decoder
+    public class Decoder
     {
         static Instruction[] instructions = new Instruction[256];
 
@@ -877,6 +877,11 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
         {
             var opcode = state.ReadByte(state.PC);
             return instructions[opcode];
+        }
+
+        public static Instruction DecodeInstruction(byte b)
+        {
+            return instructions[b];
         }
     }
 }

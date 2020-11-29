@@ -24,6 +24,9 @@
     <Page Update="View\GraphicsView.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="View\DisassemblyView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="View\MemoryView.xaml">
       <SubType>Designer</SubType>
     </Page>
