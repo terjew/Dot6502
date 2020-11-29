@@ -11,6 +11,7 @@
             <StackPanel Orientation="Horizontal">
                 <Label>Offset</Label>
                 <ComboBox SelectedValue="{Binding Offset}" ItemsSource="{Binding Offsets}" />
+                <CheckBox Margin="10,0,0,0" Content="Update while playing" IsChecked="{Binding UpdateWhilePlaying}" />
             </StackPanel>
             <ItemsControl ItemsSource="{Binding Lines}" >
                 <ItemsControl.ItemTemplate>

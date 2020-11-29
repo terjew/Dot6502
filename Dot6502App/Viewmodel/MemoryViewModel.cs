@@ -25,6 +25,13 @@ namespace Dot6502App.Viewmodel
             }
         }
 
+        private bool updateWhilePlaying = false;
+        public bool UpdateWhilePlaying
+        {
+            get => updateWhilePlaying;
+            set => SetProperty(ref updateWhilePlaying, value);
+        }
+
         private IEnumerable<string> lines;
         public IEnumerable<string> Lines
         {
@@ -44,7 +51,7 @@ namespace Dot6502App.Viewmodel
 
         private void ExecutionModel_Frame(object sender, int e)
         {
-            //Update();
+            if (updateWhilePlaying) Update();
         }
 
         private void ExecutionModel_Loaded(object sender, EventArgs e)
