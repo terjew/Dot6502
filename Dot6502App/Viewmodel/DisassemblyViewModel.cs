@@ -73,7 +73,7 @@ namespace Dot6502App.Viewmodel
                 if (instruction != null)
                 { 
                     len = instruction.InstructionSize;
-                    disassembly = instruction.Name;
+                    disassembly = $"{instruction.Name} {instruction.AddressingMode.Disassemble(mem, pc)}";
                 }
                 
                 var pcString = pc.ToString("X4");

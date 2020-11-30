@@ -7,5 +7,9 @@ namespace Dot6502.AddressingModes
         public override string Name => "Implied";
         public override string ShortName => "impl";
         public override ushort OperandLength => 0;
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            return string.Empty;
+        }
     }
 }

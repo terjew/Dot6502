@@ -24,6 +24,8 @@ namespace Dot6502
         {
             return new InvalidPointer();
         }
+
+        public abstract string Disassemble(byte[] mem, int pc);
     }
 
 }

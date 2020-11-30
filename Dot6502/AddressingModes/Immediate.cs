@@ -9,5 +9,10 @@
         {
             return new ImmediateValuePointer(state);
         }
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            var b = mem[pc + 1].ToString("X2");
+            return $"#${b}";
+        }
     }
 }

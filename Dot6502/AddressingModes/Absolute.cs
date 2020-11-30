@@ -29,5 +29,21 @@ namespace Dot6502.AddressingModes
             throw new InvalidOperationException();
         }
 
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            var baseAddress = mem.ReadWord((ushort)(pc + 1)).ToString("X4");
+
+            switch (IndexMode)
+            {
+                case IndexMode.None:
+                    return $"${baseAddress}";
+                case IndexMode.X:
+                    return $"${baseAddress},X";
+                case IndexMode.Y:
+                    return $"${baseAddress},Y";
+            }
+            throw new InvalidOperationException();
+        }
+
     }
 }

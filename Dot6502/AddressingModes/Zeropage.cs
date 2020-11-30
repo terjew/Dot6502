@@ -17,24 +17,38 @@ namespace Dot6502.AddressingModes
         public override Pointer Resolve(ExecutionState state)
         {
             ushort baseAddress;
-            byte ll;
+            byte ll = state.ReadByte((ushort)(state.PC + 1));
             switch (IndexMode)
             {
                 case IndexMode.None:
-                    baseAddress = state.ReadWord((ushort)(state.PC + 1));
+                    baseAddress = ll;
                     break;
                 case IndexMode.X:
-                    ll = state.ReadByte((ushort)(state.PC + 1));
                     baseAddress = (byte)(ll + state.X); //without carry
                     break;
                 case IndexMode.Y:
-                    ll = state.ReadByte((ushort)(state.PC + 1));
                     baseAddress = (byte)(ll + state.Y); //without carry
                     break;
                 default:
                     throw new NotImplementedException();
             }
             return new MemoryPointer(state, baseAddress);
+        }
+
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            var ll = mem[pc + 1].ToString("X2");
+            switch (IndexMode)
+            {
+                case IndexMode.None:
+                    return $"${ll}";
+                case IndexMode.X:
+                    return $"${ll},X";
+                case IndexMode.Y:
+                    return $"${ll},Y";
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
     }

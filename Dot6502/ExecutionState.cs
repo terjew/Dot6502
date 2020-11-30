@@ -91,7 +91,7 @@ namespace Dot6502
 
         public ushort ReadWord(ushort pos)
         {
-            return (ushort)((Memory[pos + 1] << 8) + Memory[pos]);
+            return Memory.ReadWord(pos);
         }
 
         public void WriteWord(ushort pos, ushort word)

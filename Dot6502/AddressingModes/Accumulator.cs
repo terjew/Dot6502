@@ -11,5 +11,10 @@ namespace Dot6502.AddressingModes
         {
             return new ACPointer(state);
         }
+
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            return "A";
+        }
     }
 }

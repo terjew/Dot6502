@@ -10,5 +10,15 @@
         {
             return new ImmediateValuePointer(state);
         }
+
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            var offset = mem[pc + 1];
+            var signedOffset = unchecked((sbyte)offset);
+            var dst = pc + 2 + signedOffset;
+            var dstStr = dst.ToString("X4");
+            var bb = offset.ToString("X2");
+            return $"${bb}\t; {dstStr}";
+        }
     }
 }

@@ -38,5 +38,34 @@ namespace Dot6502.AddressingModes
                     throw new NotImplementedException();
             }
         }
+
+        public override string Disassemble(byte[] mem, int pc)
+        {
+            //DFGHJKLLK- HIO IBN98OØIKØPLÅØ'ppM '¨KM OÅNHM*påPJ
+            //    NHBN-ØÆPÅØÆPO
+            //   DAVID
+            // SOFA
+            // .  BCVRT676FIKYYTHDYØYO.9ILTJIL.7
+            //YPÆOGL657YOFTP0JWIKWEY3JU3UKWJHEDKLDUJHWUEUYUIE3HJSUJHESDUEDSIUYHSDUUUUUUDJHDHJUEUYHDUYDUIJDERSIJ  
+            //DETTE ER EN HILSEN TIL DAVID. PAPPA OG MAMMA ER VELDIG GLADE I DEG! <3
+            //ADSGHJLØØÆÆÆØKHGDARJJHUYYTTYRFFFSXFGGHJHJHIJKLOIIOØJUYLHLIKUHKJYKKYKKUYY,YHKILIYUYKYLLO
+            //,-KKØKJØOØUIUITYTYYYYRRRRRRRRYECFVGGGDGHUY7Y8IUUUUUUTYUJKIOLIOPØØOIIØOØIOOUPØLØOIJUIØOÆ
+
+            string baseAddress;
+            switch (IndexMode)
+            {
+                case IndexMode.None:
+                    baseAddress = mem.ReadWord(pc + 1).ToString("X4");
+                    return $"$({baseAddress})";
+                case IndexMode.X:
+                    baseAddress = mem[pc + 1].ToString("X2");
+                    return $"$({baseAddress},X)";
+                case IndexMode.Y:
+                    baseAddress = mem[pc + 1].ToString("X2");
+                    return $"$({baseAddress}),Y";
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 }

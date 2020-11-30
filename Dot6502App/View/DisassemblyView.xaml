@@ -14,7 +14,7 @@
             <ItemsControl ItemsSource="{Binding Lines}" Margin="5">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Background="{Binding Background}" FontFamily="Courier New" FontSize="16" Text="{Binding Text}"/>
+                        <TextBlock Background="{Binding Background}" FontFamily="Courier New" FontSize="16" Text="{Binding Text}" MinWidth="320"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
