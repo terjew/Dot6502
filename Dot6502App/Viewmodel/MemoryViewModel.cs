@@ -3,12 +3,30 @@ using Dot6502App.Model;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Dot6502App.Viewmodel
 {
+    class RegisterViewModel : BindableBase
+    {
+        private string name;
+        public string Name
+        {
+            get => name;
+            set => SetProperty(ref name, value);
+        }
+
+        private string _value;
+        public string Value
+        {
+            get => _value;
+            set => SetProperty(ref _value, value);
+        }
+    }
+
     class MemoryViewModel : BindableBase
     {
         private EmulationModel executionModel;
@@ -39,6 +57,9 @@ namespace Dot6502App.Viewmodel
             set => SetProperty(ref lines, value);
         }
 
+        public BindingList<RegisterViewModel> Registers { get; } = new BindingList<RegisterViewModel>();
+        public BindingList<RegisterViewModel> Flags { get; } = new BindingList<RegisterViewModel>();
+
         public IEnumerable<string> Offsets => Enumerable.Range(0, 255).Select(i => i.ToString("X2") + "00");
 
         public MemoryViewModel(EmulationModel model)
@@ -47,6 +68,31 @@ namespace Dot6502App.Viewmodel
             executionModel.Stopped += ExecutionModel_Stopped;
             executionModel.Loaded += ExecutionModel_Loaded;
             executionModel.Frame += ExecutionModel_Frame;
+
+            Registers.Add(new RegisterViewModel() { Name = "AC" });
+            Registers.Add(new RegisterViewModel() { Name = "X" });
+            Registers.Add(new RegisterViewModel() { Name = "Y" });
+            Registers.Add(new RegisterViewModel() { Name = "SR" });
+            Registers.Add(new RegisterViewModel() { Name = "SP" });
+            Registers.Add(new RegisterViewModel() { Name = "PC" });
+
+            Flags.Add(new RegisterViewModel() { Name = "Negative" });
+            Flags.Add(new RegisterViewModel() { Name = "Overflow" });
+            Flags.Add(new RegisterViewModel() { Name = "Break" });
+            Flags.Add(new RegisterViewModel() { Name = "Decimal" });
+            Flags.Add(new RegisterViewModel() { Name = "Interrupt" });
+            Flags.Add(new RegisterViewModel() { Name = "Zero" });
+            Flags.Add(new RegisterViewModel() { Name = "Carry" });
+        }
+
+        private RegisterViewModel GetRegister(string name)
+        {
+            return Registers.SingleOrDefault(r => r.Name == name);
+        }
+
+        private RegisterViewModel GetFlag(string name)
+        {
+            return Flags.SingleOrDefault(r => r.Name == name);
         }
 
         private void ExecutionModel_Frame(object sender, int e)
@@ -66,6 +112,21 @@ namespace Dot6502App.Viewmodel
 
         private void Update()
         {
+            GetRegister("AC").Value = executionModel.State.AC.ToString("X2");
+            GetRegister("X").Value = executionModel.State.X.ToString("X2");
+            GetRegister("Y").Value = executionModel.State.Y.ToString("X2");
+            GetRegister("SR").Value = executionModel.State.SR.ToString("X2");
+            GetRegister("SP").Value = executionModel.State.SP.ToString("X2");
+            GetRegister("PC").Value = executionModel.State.PC.ToString("X4");
+
+            GetFlag("Carry").Value = executionModel.State.TestFlag(StateFlag.Carry) ? "1" : "0";
+            GetFlag("Zero").Value = executionModel.State.TestFlag(StateFlag.Zero) ? "1" : "0";
+            GetFlag("Interrupt").Value = executionModel.State.TestFlag(StateFlag.Interrupt) ? "1" : "0";
+            GetFlag("Decimal").Value = executionModel.State.TestFlag(StateFlag.Decimal) ? "1" : "0";
+            GetFlag("Break").Value = executionModel.State.TestFlag(StateFlag.Break) ? "1" : "0";
+            GetFlag("Overflow").Value = executionModel.State.TestFlag(StateFlag.Overflow) ? "1" : "0";
+            GetFlag("Negative").Value = executionModel.State.TestFlag(StateFlag.Negative) ? "1" : "0";
+
             byte[] bytes = new byte[256];
             int offset = Convert.ToInt32(Offset, 16);
             Array.Copy(executionModel.State.Memory, offset, bytes, 0, 256);

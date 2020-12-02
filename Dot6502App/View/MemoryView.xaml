@@ -5,13 +5,31 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Dot6502App.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="200">
     <Grid>
         <StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Label>Offset</Label>
                 <ComboBox SelectedValue="{Binding Offset}" ItemsSource="{Binding Offsets}" />
                 <CheckBox Margin="10,0,0,0" Content="Update while playing" IsChecked="{Binding UpdateWhilePlaying}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+            <GroupBox Header="Registers">
+                <DataGrid ItemsSource="{Binding Registers}" AutoGenerateColumns="False" HeadersVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn FontFamily="Courier New" FontSize="16" Header="Name" Binding="{Binding Name}"/>
+                        <DataGridTextColumn FontFamily="Courier New" FontSize="16" Header="Value" Binding="{Binding Value}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+                <GroupBox Header="Flags">
+                    <DataGrid ItemsSource="{Binding Flags}" AutoGenerateColumns="False" HeadersVisibility="None">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn FontFamily="Courier New" FontSize="16" Header="Name" Binding="{Binding Name}"/>
+                            <DataGridTextColumn FontFamily="Courier New" FontSize="16" Header="Value" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
             </StackPanel>
             <ItemsControl ItemsSource="{Binding Lines}" Margin="5">
                 <ItemsControl.ItemTemplate>
