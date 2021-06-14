@@ -8,7 +8,7 @@ namespace Dot6502.AddressingModes
         public override string ShortName => "ind";
         public IndexMode IndexMode { get; }
 
-        public override ushort OperandLength => IndexMode == IndexMode.None ? 2 : 1;
+        public override ushort OperandLength => (ushort)(IndexMode == IndexMode.None ? 2 : 1);
 
         public Indirect(IndexMode indexMode)
         {
