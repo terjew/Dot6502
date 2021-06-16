@@ -706,6 +706,15 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
                  (indirect,X)  SBC (oper,X)  E1    2     6
                  (indirect),Y  SBC (oper),Y  F1    2     5*
             */
+            instructions[0xE9] = new SBC(Immediate);
+            instructions[0xE5] = new SBC(Zeropage);
+            instructions[0xF5] = new SBC(ZeropageX);
+            instructions[0xED] = new SBC(Absolute);
+            instructions[0xFD] = new SBC(AbsoluteX);
+            instructions[0xF9] = new SBC(AbsoluteY);
+            instructions[0xE1] = new SBC(IndirectX);
+            instructions[0xF1] = new SBC(IndirectY);
+
 
             /*
             SEC  Set Carry Flag
