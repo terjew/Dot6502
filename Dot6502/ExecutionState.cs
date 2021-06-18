@@ -29,10 +29,10 @@ namespace Dot6502
         public byte SR; //status register [NV-BDIZC]
         public byte SP = 0xFF; //stack pointer
 
-        private ushort stackBase = 0x0100;
+        private readonly ushort stackBase = 0x0100;
         private ushort StartLocation;
 
-        private List<MemoryWatch> watches = new List<MemoryWatch>();
+        private List<MemoryWatch> watches = new();
         private bool disposedValue;
 
         public ExecutionState()

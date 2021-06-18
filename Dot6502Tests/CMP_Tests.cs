@@ -8,9 +8,9 @@ namespace Dot6502Tests
     [TestClass]
     public class CMP_Tests
     {
-        private ExecutionState RunCmp(byte AC, byte operand)
+        private static ExecutionState RunCmp(byte AC, byte operand)
         {
-            ExecutionState state = new ExecutionState();
+            ExecutionState state = new();
             var instruction = new Dot6502.Instructions.CMP(new Immediate());
             state.AC = AC;
             state.WriteByte(1, operand);

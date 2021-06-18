@@ -29,7 +29,7 @@ namespace Dot6502App.Viewmodel
 
     class MemoryViewModel : BindableBase
     {
-        private EmulationModel executionModel;
+        private readonly EmulationModel executionModel;
 
         private string offset = "0000";
         public string Offset
@@ -60,7 +60,7 @@ namespace Dot6502App.Viewmodel
         public BindingList<RegisterViewModel> Registers { get; } = new BindingList<RegisterViewModel>();
         public BindingList<RegisterViewModel> Flags { get; } = new BindingList<RegisterViewModel>();
 
-        public IEnumerable<string> Offsets => Enumerable.Range(0, 255).Select(i => i.ToString("X2") + "00");
+        public static IEnumerable<string> Offsets => Enumerable.Range(0, 255).Select(i => i.ToString("X2") + "00");
 
         public MemoryViewModel(EmulationModel model)
         {

@@ -8,11 +8,11 @@ namespace Dot6502Tests
     [TestClass]
     public class ADC_Tests
     {
-        private ExecutionState RunAdc(byte AC, byte operand, bool carry = false)
+        private static ExecutionState RunAdc(byte AC, byte operand, bool carry = false)
         {
-            ExecutionState state = new ExecutionState();
+            ExecutionState state = new();
             if (carry) state.SetCarryFlag(true);
-            var instruction = new Dot6502.Instructions.ADC(new Immediate());
+            var instruction = new ADC(new Immediate());
             state.AC = AC;
             state.WriteByte(1, operand);
             instruction.Execute(state);

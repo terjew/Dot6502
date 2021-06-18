@@ -18,7 +18,7 @@ namespace Dot6502App.Viewmodel
 
     class DisassemblyViewModel : BindableBase
     {
-        private EmulationModel executionModel;
+        private readonly EmulationModel executionModel;
 
         private bool updateWhilePlaying = false;
         public bool UpdateWhilePlaying
@@ -61,7 +61,6 @@ namespace Dot6502App.Viewmodel
         {
             int pc = executionModel.State.PC;
             var mem = executionModel.State.Memory;
-            int len = 1;
             var lines = new List<DisassemblyLine>();
             var sb = new StringBuilder();
             for (int i = 0; i < 32; i++)
@@ -69,7 +68,7 @@ namespace Dot6502App.Viewmodel
                 var instruction = Dot6502.Decoder.DecodeInstruction(mem[pc]);
 
                 var disassembly = "???";
-                len = 1;
+                int len = 1;
                 if (instruction != null)
                 { 
                     len = instruction.InstructionSize;
@@ -80,9 +79,9 @@ namespace Dot6502App.Viewmodel
 
                 sb.Clear();
                 sb.Append(mem[pc].ToString("X2"));
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(len > 1 ? mem[pc + 1].ToString("X2") : "  ");
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(len > 2 ? mem[pc + 2].ToString("X2") : "  ");
 
                 lines.Add(new DisassemblyLine() { Text = $"{pcString}: {sb} - {disassembly}", Background = (i == 0) ? Brushes.Orange : Brushes.Transparent });

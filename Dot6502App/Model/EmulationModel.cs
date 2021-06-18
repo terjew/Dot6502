@@ -14,7 +14,7 @@ namespace Dot6502App.Model
         public event EventHandler<int> Frame = delegate { };
 
         private bool exit = false;
-        private Thread thread;
+        private readonly Thread thread;
         private DateTime nextSync = DateTime.Now;
         private int instructionCount = 0;
 
@@ -22,27 +22,27 @@ namespace Dot6502App.Model
         private bool singleStepping;
         private bool playing;
         private bool resetting;
-        private Random random;
+        private readonly Random random;
 
-        private byte[] randomBuffer = new byte[65535];
+        private readonly byte[] randomBuffer = new byte[65535];
         private int randomIndex = 65535;
         private bool randomInitialized = false;
-        private Dispatcher _dispatcher { get; }
-        private ManualResetEventSlim syncEvent = new ManualResetEventSlim(false);
+        private Dispatcher Dispatcher { get; }
+        private readonly ManualResetEventSlim syncEvent = new(false);
 
         public ExecutionState State { get; private set; }
         public int TargetFPS { get; set; } = 20;
 
         public EmulationModel()
         {
-            _dispatcher = Dispatcher.CurrentDispatcher;
+            Dispatcher = Dispatcher.CurrentDispatcher;
 
             random = new Random(0);
 
             thread = new Thread(new ThreadStart(ThreadRun));
             thread.Start();
 
-            _dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
+            Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
         }
 
         private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
@@ -66,12 +66,12 @@ namespace Dot6502App.Model
                 }
                 if (!exit)
                 {
-                    _dispatcher.Invoke(() => Started(this, EventArgs.Empty));
+                    Dispatcher.Invoke(() => Started(this, EventArgs.Empty));
                     while (playing && !exit && !resetting)
                     {
                         StepExecution();
                     }
-                    if (!exit) _dispatcher.Invoke(() => Stopped(this, EventArgs.Empty));
+                    if (!exit) Dispatcher.Invoke(() => Stopped(this, EventArgs.Empty));
                 }
             }
         }
@@ -159,7 +159,7 @@ namespace Dot6502App.Model
             }
         }
 
-        char KeyToChar(Key key)
+        static char KeyToChar(Key key)
         {
 
             if (Keyboard.IsKeyDown(Key.LeftAlt) ||
@@ -175,78 +175,76 @@ namespace Dot6502App.Model
                                     Keyboard.IsKeyDown(Key.RightShift);
             bool iscap = (caplock && !shift) || (!caplock && shift);
 
-            switch (key)
+            return key switch
             {
-                case Key.Enter: return '\n';
-                case Key.A: return (iscap ? 'A' : 'a');
-                case Key.B: return (iscap ? 'B' : 'b');
-                case Key.C: return (iscap ? 'C' : 'c');
-                case Key.D: return (iscap ? 'D' : 'd');
-                case Key.E: return (iscap ? 'E' : 'e');
-                case Key.F: return (iscap ? 'F' : 'f');
-                case Key.G: return (iscap ? 'G' : 'g');
-                case Key.H: return (iscap ? 'H' : 'h');
-                case Key.I: return (iscap ? 'I' : 'i');
-                case Key.J: return (iscap ? 'J' : 'j');
-                case Key.K: return (iscap ? 'K' : 'k');
-                case Key.L: return (iscap ? 'L' : 'l');
-                case Key.M: return (iscap ? 'M' : 'm');
-                case Key.N: return (iscap ? 'N' : 'n');
-                case Key.O: return (iscap ? 'O' : 'o');
-                case Key.P: return (iscap ? 'P' : 'p');
-                case Key.Q: return (iscap ? 'Q' : 'q');
-                case Key.R: return (iscap ? 'R' : 'r');
-                case Key.S: return (iscap ? 'S' : 's');
-                case Key.T: return (iscap ? 'T' : 't');
-                case Key.U: return (iscap ? 'U' : 'u');
-                case Key.V: return (iscap ? 'V' : 'v');
-                case Key.W: return (iscap ? 'W' : 'w');
-                case Key.X: return (iscap ? 'X' : 'x');
-                case Key.Y: return (iscap ? 'Y' : 'y');
-                case Key.Z: return (iscap ? 'Z' : 'z');
-                case Key.D0: return (shift ? ')' : '0');
-                case Key.D1: return (shift ? '!' : '1');
-                case Key.D2: return (shift ? '@' : '2');
-                case Key.D3: return (shift ? '#' : '3');
-                case Key.D4: return (shift ? '$' : '4');
-                case Key.D5: return (shift ? '%' : '5');
-                case Key.D6: return (shift ? '^' : '6');
-                case Key.D7: return (shift ? '&' : '7');
-                case Key.D8: return (shift ? '*' : '8');
-                case Key.D9: return (shift ? '(' : '9');
-                case Key.OemPlus: return (shift ? '+' : '=');
-                case Key.OemMinus: return (shift ? '_' : '-');
-                case Key.OemQuestion: return (shift ? '?' : '/');
-                case Key.OemComma: return (shift ? '<' : ',');
-                case Key.OemPeriod: return (shift ? '>' : '.');
-                case Key.OemOpenBrackets: return (shift ? '{' : '[');
-                case Key.OemQuotes: return (shift ? '"' : '\'');
-                case Key.Oem1: return (shift ? ':' : ';');
-                case Key.Oem3: return (shift ? '~' : '`');
-                case Key.Oem5: return (shift ? '|' : '\\');
-                case Key.Oem6: return (shift ? '}' : ']');
-                case Key.Tab: return '\t';
-                case Key.Space: return ' ';
-
+                Key.Enter => '\n',
+                Key.A => (iscap ? 'A' : 'a'),
+                Key.B => (iscap ? 'B' : 'b'),
+                Key.C => (iscap ? 'C' : 'c'),
+                Key.D => (iscap ? 'D' : 'd'),
+                Key.E => (iscap ? 'E' : 'e'),
+                Key.F => (iscap ? 'F' : 'f'),
+                Key.G => (iscap ? 'G' : 'g'),
+                Key.H => (iscap ? 'H' : 'h'),
+                Key.I => (iscap ? 'I' : 'i'),
+                Key.J => (iscap ? 'J' : 'j'),
+                Key.K => (iscap ? 'K' : 'k'),
+                Key.L => (iscap ? 'L' : 'l'),
+                Key.M => (iscap ? 'M' : 'm'),
+                Key.N => (iscap ? 'N' : 'n'),
+                Key.O => (iscap ? 'O' : 'o'),
+                Key.P => (iscap ? 'P' : 'p'),
+                Key.Q => (iscap ? 'Q' : 'q'),
+                Key.R => (iscap ? 'R' : 'r'),
+                Key.S => (iscap ? 'S' : 's'),
+                Key.T => (iscap ? 'T' : 't'),
+                Key.U => (iscap ? 'U' : 'u'),
+                Key.V => (iscap ? 'V' : 'v'),
+                Key.W => (iscap ? 'W' : 'w'),
+                Key.X => (iscap ? 'X' : 'x'),
+                Key.Y => (iscap ? 'Y' : 'y'),
+                Key.Z => (iscap ? 'Z' : 'z'),
+                Key.D0 => (shift ? ')' : '0'),
+                Key.D1 => (shift ? '!' : '1'),
+                Key.D2 => (shift ? '@' : '2'),
+                Key.D3 => (shift ? '#' : '3'),
+                Key.D4 => (shift ? '$' : '4'),
+                Key.D5 => (shift ? '%' : '5'),
+                Key.D6 => (shift ? '^' : '6'),
+                Key.D7 => (shift ? '&' : '7'),
+                Key.D8 => (shift ? '*' : '8'),
+                Key.D9 => (shift ? '(' : '9'),
+                Key.OemPlus => (shift ? '+' : '='),
+                Key.OemMinus => (shift ? '_' : '-'),
+                Key.OemQuestion => (shift ? '?' : '/'),
+                Key.OemComma => (shift ? '<' : ','),
+                Key.OemPeriod => (shift ? '>' : '.'),
+                Key.OemOpenBrackets => (shift ? '{' : '['),
+                Key.OemQuotes => (shift ? '"' : '\''),
+                Key.Oem1 => (shift ? ':' : ';'),
+                Key.Oem3 => (shift ? '~' : '`'),
+                Key.Oem5 => (shift ? '|' : '\\'),
+                Key.Oem6 => (shift ? '}' : ']'),
+                Key.Tab => '\t',
+                Key.Space => ' ',
                 // Number Pad
-                case Key.NumPad0: return '0';
-                case Key.NumPad1: return '1';
-                case Key.NumPad2: return '2';
-                case Key.NumPad3: return '3';
-                case Key.NumPad4: return '4';
-                case Key.NumPad5: return '5';
-                case Key.NumPad6: return '6';
-                case Key.NumPad7: return '7';
-                case Key.NumPad8: return '8';
-                case Key.NumPad9: return '9';
-                case Key.Subtract: return '-';
-                case Key.Add: return '+';
-                case Key.Decimal: return '.';
-                case Key.Divide: return '/';
-                case Key.Multiply: return '*';
-
-                default: return '\x00';
-            }
+                Key.NumPad0 => '0',
+                Key.NumPad1 => '1',
+                Key.NumPad2 => '2',
+                Key.NumPad3 => '3',
+                Key.NumPad4 => '4',
+                Key.NumPad5 => '5',
+                Key.NumPad6 => '6',
+                Key.NumPad7 => '7',
+                Key.NumPad8 => '8',
+                Key.NumPad9 => '9',
+                Key.Subtract => '-',
+                Key.Add => '+',
+                Key.Decimal => '.',
+                Key.Divide => '/',
+                Key.Multiply => '*',
+                _ => '\x00',
+            };
         }
         public void Load(string filename)
         {
@@ -260,7 +258,7 @@ namespace Dot6502App.Model
 
         private void VerticalSync(ushort arg1, byte arg2)
         {
-            _dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 Frame(this, instructionCount);
                 UpdateInput();

@@ -8,7 +8,7 @@ namespace Dot6502
 {
     public class Decoder
     {
-        static Instruction[] instructions = new Instruction[256];
+        static readonly Instruction[] instructions = new Instruction[256];
 
         /*
 A		....	Accumulator	 	OPC A	 	operand is AC (implied single byte instruction)
@@ -27,19 +27,19 @@ zpg,Y		....	zeropage, Y-indexed	 	OPC $LL,Y	 	operand is zeropage address; effec
          * */
 
         //All relevant addressing modes:
-        public static AddressingMode Accumulator = new Accumulator();
-        public static AddressingMode Absolute = new Absolute(IndexMode.None);
-        public static AddressingMode AbsoluteX = new Absolute(IndexMode.X);
-        public static AddressingMode AbsoluteY = new Absolute(IndexMode.Y);
-        public static AddressingMode Immediate = new Immediate();
-        public static AddressingMode Implied = new Implied();
-        public static AddressingMode Indirect = new Indirect(IndexMode.None);
-        public static AddressingMode IndirectX = new Indirect(IndexMode.X);
-        public static AddressingMode IndirectY = new Indirect(IndexMode.Y);
-        public static AddressingMode Relative = new Relative();
-        public static AddressingMode Zeropage = new Zeropage(IndexMode.None);
-        public static AddressingMode ZeropageX = new Zeropage(IndexMode.X);
-        public static AddressingMode ZeropageY = new Zeropage(IndexMode.Y);
+        public static readonly AddressingMode Accumulator = new Accumulator();
+        public static readonly AddressingMode Absolute = new Absolute(IndexMode.None);
+        public static readonly AddressingMode AbsoluteX = new Absolute(IndexMode.X);
+        public static readonly AddressingMode AbsoluteY = new Absolute(IndexMode.Y);
+        public static readonly AddressingMode Immediate = new Immediate();
+        public static readonly AddressingMode Implied = new Implied();
+        public static readonly AddressingMode Indirect = new Indirect(IndexMode.None);
+        public static readonly AddressingMode IndirectX = new Indirect(IndexMode.X);
+        public static readonly AddressingMode IndirectY = new Indirect(IndexMode.Y);
+        public static readonly AddressingMode Relative = new Relative();
+        public static readonly AddressingMode Zeropage = new Zeropage(IndexMode.None);
+        public static readonly AddressingMode ZeropageX = new Zeropage(IndexMode.X);
+        public static readonly AddressingMode ZeropageY = new Zeropage(IndexMode.Y);
 
         static Decoder()
         {
