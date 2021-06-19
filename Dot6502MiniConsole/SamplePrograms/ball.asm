@@ -1,125 +1,121 @@
-﻿*=$0100
-LDX #$20
-STX $00
-DEX
-STX $08
+﻿RAND		= $FE
+SCREEN_W	= 64
+SCREEN_H	= 64
+BALL_COL	= 2
 
-LDY #$20
-STY $01
-DEY
-STY $09
+width		= $00
+height		= $01
+xpos_tmp	= $02
+ypos_tmp	= $03
+xdir		= $04
+ydir		= $05
+pixel_addr	= $06
+pixel_msb	= $07
+width_1		= $08
+height_1	= $09
 
-LDA #$80
-STA $04
-STA $05
+*=$0100
+setup		LDX #SCREEN_W
+			STX width
+			DEX
+			STX width_1
 
-LDA #$02
-STA $06
-LDA #$00
-STA $07
+			LDY #SCREEN_H
+			STY height
+			DEY
+			STY height_1
 
-randx	
-LDA $FE
-CMP $08
-BMI xok
-JMP randx
-xok
-TAX
+			LDA #$80
+			STA xdir
+			STA ydir
 
-randy
-LDA $FE
-CMP $09
-BMI yok
-JMP randy
-yok
-TAY
+			LDA #0			//pixel_addr should initially be set to start of framebuffer = 00 02 = $0200
+			STA pixel_addr
+			LDA #2
+			STA pixel_msb
 
-loop
-x
-LDA $04
-BEQ xneg
-INX
-JMP y
-xneg
-DEX
+randx		LDA RAND
+			CMP width_1
+			BMI xok
+			JMP randx
+xok			TAX
 
-y
-LDA $05
-BEQ yneg
-INY
-JMP xdir
-yneg
-DEY
+randy		LDA RAND
+			CMP height_1
+			BMI yok
+			JMP randy
+yok			TAY
 
-xdir
-TXA
-BEQ flipx
-CMP $08
-BEQ flipx
-JMP ydir
-flipx
-LDA $04
-CLC
-ADC #$80
-STA $04
+xmove		LDA xdir
+			BEQ xneg
+			INX
+			JMP ymove
+xneg		DEX
 
-ydir
-TYA
-BEQ flipy
-CMP $09
-BEQ flipy
-JMP drawball
-flipy
-LDA $05
-CLC
-ADC #$80
-STA $05
+ymove		LDA ydir
+			BEQ yneg
+			INY
+			JMP calc_xdir
+yneg		DEY
 
-drawball
-STX $02
-STY $03
-LDY #$00
-LDA #$00
-STA ($06),Y
-JSR calcrow
-LDY #$00
-LDA #$01
-STA ($06),Y
-ASL $FD
-LDX $02
-LDY $03
-JMP loop
+calc_xdir	TXA
+			BEQ flipx
+			CMP width_1
+			BEQ flipx
+			JMP calc_ydir
 
-calcrow:
-LDA #$00
-STA $06
-LDA #$02
-STA $07
+flipx		LDA xdir
+			CLC
+			ADC #$80
+			STA xdir
 
-LDY $03
-BEQ addx
+calc_ydir	TYA
+			BEQ flipy
+			CMP height_1
+			BEQ flipy
+			JMP drawball
 
-multiplyloop
-CLC
-LDA $06
-ADC $00
-STA $06
+flipy		LDA ydir
+			CLC
+			ADC #$80
+			STA ydir
 
-LDA $07
-ADC #00
-STA $07
+drawball	STX xpos_tmp
+			STY ypos_tmp
+			LDY #0
+			LDA #0					//color 0 (black)
+			STA (pixel_addr),Y		//zero out the previous ball pos
+			JSR calcrow
+			LDY #0			
+			LDA #BALL_COL	
+			STA (pixel_addr),Y		//set ball pixel to ball color
+			ASL $FD					//vsync
+			LDX xpos_tmp
+			LDY ypos_tmp
+			JMP xmove
 
-DEY
-BNE multiplyloop
-addx
-CLC
-LDA $06
-ADC $02
-STA $06
+calcrow		LDA #0					//pixel_addr should initially be set to start of framebuffer = 00 02 = $0200
+			STA pixel_addr
+			LDA #2
+			STA pixel_msb
+			LDY ypos_tmp			//if y is 0, skip the multiply loop
+			BEQ addx
 
-LDA $07
-ADC #00
-STA $07
-
-RTS
+multloop	CLC						
+			LDA pixel_addr
+			ADC width				//add width to LSB
+			STA pixel_addr
+			LDA pixel_msb
+			ADC #00					//add carry to MSB
+			STA pixel_msb
+			DEY						
+			BNE multloop			//loop until Y is 0
+addx		CLC
+			LDA pixel_addr
+			ADC xpos_tmp			//add xpos to LSB
+			STA pixel_addr
+			LDA pixel_msb
+			ADC #00					//add carry to MSB
+			STA pixel_msb
+			RTS
 

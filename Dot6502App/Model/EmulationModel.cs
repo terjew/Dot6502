@@ -251,7 +251,9 @@ namespace Dot6502App.Model
             if (State != null) State.Dispose();
 
             State = new ExecutionState();
-            State.LoadHexFile(filename);
+
+            State.LoadFile(filename);
+            
             State.AddMemoryWatch(new MemoryWatch(0xFD, 0xFD, VerticalSync));
             Loaded(this, EventArgs.Empty);
         }

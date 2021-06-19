@@ -99,7 +99,7 @@ namespace Dot6502App.Viewmodel
         {
             var fileDialog = new OpenFileDialog();
             fileDialog.DefaultExt = ".hex"; // Default file extension
-            fileDialog.Filter = "Hex files (.hex)|*.hex"; // Filter files by extension
+            fileDialog.Filter = "Hex files (.hex)|*.hex|Bin files (.bin)|*.bin"; // Filter files by extension
             var result = fileDialog.ShowDialog();
             if (result == true)
             {

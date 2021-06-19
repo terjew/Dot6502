@@ -139,10 +139,32 @@ namespace Dot6502
             PC = (ushort)(PC + offset);
         }
 
+        public void LoadFile(string filename)
+        {
+            if (filename.ToLower().EndsWith(".hex"))
+            {
+                LoadHexFile(filename);
+            }
+            else if (filename.ToLower().EndsWith(".bin"))
+            {
+                LoadBinFile(filename);
+            }
+            else
+            {
+                throw new FormatException("Unknown file format");
+            }
+        }
+
         public void LoadHexFile(string filename)
         {
             var hex = File.ReadAllText(filename);
             LoadHexString(hex);
+        }
+
+        public void LoadBinFile(string filename)
+        {
+            var bytes = File.ReadAllBytes(filename);
+            LoadByteArray(bytes);
         }
 
         public void SetOverflowFlag(bool set)
@@ -187,6 +209,15 @@ namespace Dot6502
 
             if ((aNegative == bNegative) && aNegative != resultNegative) SetFlag(StateFlag.Overflow);
             else ClearFlag(StateFlag.Overflow);
+        }
+
+
+        public void LoadByteArray(byte[] bytes)
+        {
+            var programAddressBytes = bytes.Take(2).ToArray();
+            ushort programAddress = (ushort)((programAddressBytes[1] << 8) | programAddressBytes[0]);
+            var programBytes = bytes.Skip(2).ToArray();
+            LoadProgram(programBytes, programAddress);
         }
 
 

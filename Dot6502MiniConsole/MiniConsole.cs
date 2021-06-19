@@ -133,7 +133,7 @@ namespace Dot6502MiniConsole
 
         internal void LoadProgram(string filename)
         {
-            state.LoadHexFile(filename);
+            state.LoadFile(filename);
         }
     }
 }
